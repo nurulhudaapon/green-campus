@@ -60,7 +60,7 @@ export default function ClassRoutinePage() {
         <div className="container mx-auto max-w-7xl p-4">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-3xl font-bold">Class Routine</h1>
-                <div className="flex flex-col gap-2 sm:flex-row sm:space-x-2">
+                <div className="flex flex-col gap-2 lg:flex-row lg:space-x-2">
                     <Button
                         variant="outline"
                         onClick={handleDownloadCalendar}
@@ -93,7 +93,7 @@ export default function ClassRoutinePage() {
             </div>
 
             {viewMode === 'list' ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 lg:grid-cols-2">
                     {classSchedules.map((cls, index) => (
                         <Card key={index}>
                             <CardHeader>
@@ -123,7 +123,7 @@ export default function ClassRoutinePage() {
                     ))}
                 </div>
             ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-w-[80vw] md:max-w-[60vw]">
                     <Table>
                         <TableHeader>
                             <TableRow>

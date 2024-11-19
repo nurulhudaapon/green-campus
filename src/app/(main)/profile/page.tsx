@@ -5,38 +5,39 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GraduationCap, User } from 'lucide-react'
 import { getStudentInfo } from './action'
+
 export default async function ProfilePage() {
     const studentInfo = await getStudentInfo()
 
     return (
-        <div className="container mx-auto max-w-7xl p-4 overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl p-4">
             <h1 className="mb-6 text-3xl font-bold">Student Profile</h1>
             <Card className="mb-6">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardHeader className="pb-2">
                     <CardTitle className="text-2xl font-bold">
                         Basic Information
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex items-center space-x-4">
-                            <User className="h-5 w-5 text-gray-500" />
-                            <div>
-                                <p className="text-sm font-medium leading-none">
+                            <User className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium leading-none truncate">
                                     {studentInfo.studentID}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 truncate">
                                     {studentInfo.email}
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <GraduationCap className="h-5 w-5 text-gray-500" />
-                            <div>
-                                <p className="text-sm font-medium leading-none">
+                            <GraduationCap className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium leading-none truncate">
                                     {studentInfo.gender}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 truncate">
                                     Marital Status: {studentInfo.matrialStatus}
                                 </p>
                             </div>
@@ -46,14 +47,10 @@ export default async function ProfilePage() {
             </Card>
 
             <Tabs defaultValue="personal" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="personal">Personal </TabsTrigger>
-                    <TabsTrigger value="academic">
-                        Academic Information
-                    </TabsTrigger>
-                    <TabsTrigger value="contact">
-                        Contact Information
-                    </TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="personal">Personal</TabsTrigger>
+                    <TabsTrigger value="academic">Academic</TabsTrigger>
+                    <TabsTrigger value="contact">Contact</TabsTrigger>
                 </TabsList>
                 <TabsContent value="personal">
                     <Card>
@@ -61,7 +58,7 @@ export default async function ProfilePage() {
                             <CardTitle>Personal Information</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="dob">Date of Birth</Label>
                                     <Input
@@ -69,7 +66,7 @@ export default async function ProfilePage() {
                                         value={new Date(
                                             studentInfo.dob
                                         ).toLocaleDateString()}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -79,7 +76,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="bloodGroup"
                                         value={studentInfo.bloodGroup}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -87,7 +84,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="religion"
                                         value={studentInfo.religion}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -97,7 +94,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="nationality"
                                         value={studentInfo.nationality}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                             </div>
@@ -110,7 +107,7 @@ export default async function ProfilePage() {
                             <CardTitle>Academic Information</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="fatherName">
                                         Father's Name
@@ -118,7 +115,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="fatherName"
                                         value={studentInfo.fatherName}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -128,7 +125,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="motherName"
                                         value={studentInfo.motherName}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -138,7 +135,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="fatherProfession"
                                         value={studentInfo.fatherProfession}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -148,7 +145,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="motherProfession"
                                         value={studentInfo.motherProfession}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                             </div>
@@ -161,13 +158,13 @@ export default async function ProfilePage() {
                             <CardTitle>Contact Information</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
                                         value={studentInfo.email}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -175,7 +172,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="phone"
                                         value={studentInfo.contactNumber}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -185,7 +182,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="presentAddress"
                                         value={studentInfo.presentAddress}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -195,7 +192,7 @@ export default async function ProfilePage() {
                                     <Input
                                         id="permanentAddress"
                                         value={studentInfo.parmanentAddress}
-                                        readOnly={true}
+                                        readOnly
                                     />
                                 </div>
                             </div>
@@ -203,12 +200,6 @@ export default async function ProfilePage() {
                     </Card>
                 </TabsContent>
             </Tabs>
-
-            {/* <div className="mt-6 flex justify-end">
-        <Button onClick={() => setrue(!isEditing)}>
-          {isEditing ? 'Save Changes' : 'Edit Profile'}
-        </Button>
-      </div> */}
         </div>
     )
 }

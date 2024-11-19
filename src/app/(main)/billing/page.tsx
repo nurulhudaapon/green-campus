@@ -138,7 +138,7 @@ export default function BillingPage() {
                     <CardTitle>Installment Schedule</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="overflow-x-auto max-w-[60vw]">
+                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -193,7 +193,7 @@ export default function BillingPage() {
                             className="max-w-sm"
                         />
                     </div>
-                    <div className="overflow-x-auto max-w-[60vw]">
+                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
                         <Table>
                             <TableHeader>
                                 <TableRow>

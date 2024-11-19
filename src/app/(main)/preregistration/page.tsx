@@ -105,73 +105,87 @@ export default function PreRegistrationPage() {
                 </CardHeader>
                 <CardContent>
                     <ScrollArea className="h-[600px]">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Course Code</TableHead>
-                                    <TableHead>Course Title</TableHead>
-                                    <TableHead>Sections</TableHead>
-                                    <TableHead>Selected</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {courses.map((course) => (
-                                    <TableRow key={course.code}>
-                                        <TableCell>{course.code}</TableCell>
-                                        <TableCell>{course.title}</TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-wrap gap-2">
-                                                {course.sections.map(
-                                                    (section) => (
-                                                        <Button
-                                                            key={section.name}
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className={`${getBackgroundColor(section.availableSeats, section.totalSeats)} hover:${getBackgroundColor(section.availableSeats, section.totalSeats)}`}
-                                                            onClick={() =>
-                                                                handleSectionSelect(
-                                                                    course.code,
-                                                                    section.name
-                                                                )
-                                                            }
-                                                        >
-                                                            {section.name}
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="ml-2"
-                                                            >
-                                                                {
-                                                                    section.availableSeats
-                                                                }
-                                                                /
-                                                                {
-                                                                    section.totalSeats
-                                                                }
-                                                            </Badge>
-                                                        </Button>
-                                                    )
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {selectedSections[course.code] ? (
-                                                <Badge>
-                                                    {
-                                                        selectedSections[
-                                                            course.code
-                                                        ]
-                                                    }
-                                                </Badge>
-                                            ) : (
-                                                <span className="text-gray-400">
-                                                    None
-                                                </span>
-                                            )}
-                                        </TableCell>
+                        <div className="overflow-x-auto max-w-[68vw]">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Course Code</TableHead>
+                                        <TableHead>Course Title</TableHead>
+                                        <TableHead>Sections</TableHead>
+                                        <TableHead>Selected</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {courses.map((course) => (
+                                        <TableRow key={course.code}>
+                                            <TableCell>{course.code}</TableCell>
+                                            <TableCell>
+                                                {course.title}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {course.sections.map(
+                                                        (section) => (
+                                                            <Button
+                                                                key={
+                                                                    section.name
+                                                                }
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className={`${getBackgroundColor(
+                                                                    section.availableSeats,
+                                                                    section.totalSeats
+                                                                )} hover:${getBackgroundColor(
+                                                                    section.availableSeats,
+                                                                    section.totalSeats
+                                                                )}`}
+                                                                onClick={() =>
+                                                                    handleSectionSelect(
+                                                                        course.code,
+                                                                        section.name
+                                                                    )
+                                                                }
+                                                            >
+                                                                {section.name}
+                                                                <Badge
+                                                                    variant="secondary"
+                                                                    className="ml-2"
+                                                                >
+                                                                    {
+                                                                        section.availableSeats
+                                                                    }
+                                                                    /
+                                                                    {
+                                                                        section.totalSeats
+                                                                    }
+                                                                </Badge>
+                                                            </Button>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {selectedSections[
+                                                    course.code
+                                                ] ? (
+                                                    <Badge>
+                                                        {
+                                                            selectedSections[
+                                                                course.code
+                                                            ]
+                                                        }
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-gray-400">
+                                                        None
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </ScrollArea>
                 </CardContent>
             </Card>
