@@ -18,8 +18,8 @@ export async function getAuthToken(prev: unknown, formData: FormData) {
 
     console.log({ credentialCookies: credentialCookies.slice(0, 50) });
 
-    const cookieStore = await cookies()
-    if (credentialCookies) { 
+    const cookieStore = await cookies();
+    if (credentialCookies) {
       cookieStore.set("auth", credentialCookies);
     }
 
@@ -40,7 +40,7 @@ async function getInitialTokens() {
     const responseText = await response.text();
     const cookies = response.headers.getSetCookie();
     const verificationToken = responseText.match(
-      /<input name="__RequestVerificationToken" type="hidden" value="([^"]+)" \/>/
+      /<input name="__RequestVerificationToken" type="hidden" value="([^"]+)" \/>/,
     )?.[1];
     return {
       cookies,

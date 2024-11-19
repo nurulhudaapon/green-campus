@@ -2,15 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from 'lucide-react';
-import { HeaderProfile } from '../component';
-import { 
-  UserCircle, 
-  CreditCard, 
+import { Menu } from "lucide-react";
+import { HeaderProfile } from "../component";
+import {
+  UserCircle,
+  CreditCard,
   GraduationCap,
   ClipboardList,
-  Calendar
-} from 'lucide-react';
+  Calendar,
+} from "lucide-react";
 
 export default function RootLayout({
   children,
@@ -20,36 +20,35 @@ export default function RootLayout({
   // const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const navItems = [
-    { 
-      href: "/profile", 
+    {
+      href: "/profile",
       label: "Profile",
-      icon: UserCircle 
+      icon: UserCircle,
     },
-    { 
-      href: "/billing", 
+    {
+      href: "/billing",
       label: "Billing",
-      icon: CreditCard 
+      icon: CreditCard,
     },
-    { 
-      href: "/result", 
+    {
+      href: "/result",
       label: "Result",
-      icon: GraduationCap 
+      icon: GraduationCap,
     },
-    { 
-      href: "/preregistration", 
+    {
+      href: "/preregistration",
       label: "Pre-Registration",
-      icon: ClipboardList 
+      icon: ClipboardList,
     },
-    { 
-      href: "/routine", 
+    {
+      href: "/routine",
       label: "Routine",
-      icon: Calendar 
+      icon: Calendar,
     },
-  ]
+  ];
 
   return (
- 
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
         <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -60,7 +59,7 @@ export default function RootLayout({
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
-              </SheetTrigger> 
+              </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col space-y-2">
                   {navItems.map((item) => (
@@ -88,7 +87,7 @@ export default function RootLayout({
               <span className="text-sky-500">University of Bangladesh</span>
             </h1>
           </div>
-          <HeaderProfile /> 
+          <HeaderProfile />
         </div>
       </header>
 
@@ -114,5 +113,5 @@ export default function RootLayout({
         <main className="flex-1 px-4 py-8 md:ml-64 md:px-6">{children}</main>
       </div>
     </div>
-  )
+  );
 }

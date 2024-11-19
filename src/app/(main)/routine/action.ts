@@ -16,11 +16,10 @@ export async function getClassRoutine() {
 
   const response = await fetch(`${BASE_URL}/api/ClassRoutine`, {
     headers: {
-        accept: "application/json, text/plain, */*",
-        Cookie: authToken.value,
-      },
-    }
-  );
+      accept: "application/json, text/plain, */*",
+      Cookie: authToken.value,
+    },
+  });
 
   const data = await response.json();
   return data;

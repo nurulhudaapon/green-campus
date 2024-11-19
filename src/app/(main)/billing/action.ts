@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import * as cheerio from 'cheerio';
+import * as cheerio from "cheerio";
 
 const BASE_URL = "https://studentportal.green.edu.bd";
 
@@ -57,41 +57,67 @@ export async function getBilling() {
 
   const htmlResponse = await response.text();
   const data = parseHtmlToJson(htmlResponse);
-  console.log({billingData: data});
+  console.log({ billingData: data });
   return data;
 }
 
 function parseHtmlToJson(html: string): BillingHistory {
   const $ = cheerio.load(html);
-  
+
   // Parse billing summary
   const summary: BillingSummary = {
-    totalFee: parseFloat($('.card-body .row .col-md-4').eq(0).text().match(/Total Fee: (\d+)/)?.[1] || '0'),
-    totalDiscount: parseFloat($('.card-body .row .col-md-4').eq(0).text().match(/Total Discount: -(\d+)/)?.[1] || '0') * -1,
-    totalBill: parseFloat($('.card-body .row .col-md-4').eq(1).text().match(/Total Bill: (\d+)/)?.[1] || '0'),
-    totalPaid: parseFloat($('.card-body .row .col-md-4').eq(1).text().match(/Total Paid: (\d+)/)?.[1] || '0'),
-    balance: parseFloat($('.card-body .row .col-md-4').eq(2).text().match(/Balance \(Due\/Advance\): (-?\d+)/)?.[1] || '0'),
+    totalFee: parseFloat(
+      $(".card-body .row .col-md-4")
+        .eq(0)
+        .text()
+        .match(/Total Fee: (\d+)/)?.[1] || "0",
+    ),
+    totalDiscount:
+      parseFloat(
+        $(".card-body .row .col-md-4")
+          .eq(0)
+          .text()
+          .match(/Total Discount: -(\d+)/)?.[1] || "0",
+      ) * -1,
+    totalBill: parseFloat(
+      $(".card-body .row .col-md-4")
+        .eq(1)
+        .text()
+        .match(/Total Bill: (\d+)/)?.[1] || "0",
+    ),
+    totalPaid: parseFloat(
+      $(".card-body .row .col-md-4")
+        .eq(1)
+        .text()
+        .match(/Total Paid: (\d+)/)?.[1] || "0",
+    ),
+    balance: parseFloat(
+      $(".card-body .row .col-md-4")
+        .eq(2)
+        .text()
+        .match(/Balance \(Due\/Advance\): (-?\d+)/)?.[1] || "0",
+    ),
   };
 
   // Parse installments
   const installments: InstallmentInfo[] = [];
-  $('.card-body .table tbody tr').each((i, elem) => {
-    const tds = $(elem).find('td');
+  $(".card-body .table tbody tr").each((i, elem) => {
+    const tds = $(elem).find("td");
     if (tds.length === 6) {
       installments.push({
         number: $(tds[1]).text().trim(),
         dueDate: $(tds[2]).text().trim(),
-        amount: parseFloat($(tds[3]).text().trim().replace(',', '') || '0'),
-        payable: parseFloat($(tds[4]).text().trim().replace(',', '') || '0'),
-        lateFee: parseFloat($(tds[5]).text().trim().replace(',', '') || '0'),
+        amount: parseFloat($(tds[3]).text().trim().replace(",", "") || "0"),
+        payable: parseFloat($(tds[4]).text().trim().replace(",", "") || "0"),
+        lateFee: parseFloat($(tds[5]).text().trim().replace(",", "") || "0"),
       });
     }
   });
 
   // Parse billing records
   const records: TransactionInfo[] = [];
-  $('#tblBillHistory tr:gt(0)').each((i, elem) => {
-    const tds = $(elem).find('td');
+  $("#tblBillHistory tr:gt(0)").each((i, elem) => {
+    const tds = $(elem).find("td");
     if (tds.length === 10) {
       records.push({
         slNo: i + 1,

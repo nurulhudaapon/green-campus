@@ -13,14 +13,12 @@ export async function getStudentInfo() {
     redirect("/login?message=Session expired");
   }
 
-
   const response = await fetch(`${BASE_URL}/api/StudentInfo`, {
     headers: {
-        accept: "application/json, text/plain, */*",
-        Cookie: authToken.value,
-      },
-    }
-  );
+      accept: "application/json, text/plain, */*",
+      Cookie: authToken.value,
+    },
+  });
 
   if (response.url.includes("/Account/login")) {
     // cookieStore.delete("auth"); /// TODO: Probably a next.js bug [ Server ] Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options

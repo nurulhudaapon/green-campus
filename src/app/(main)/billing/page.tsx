@@ -1,13 +1,20 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { CreditCard, Calendar, Search } from 'lucide-react'
-import { BillingHistory, getBilling } from './action'
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { CreditCard, Calendar, Search } from "lucide-react";
+import { BillingHistory, getBilling } from "./action";
 
 const TakaIcon = ({ className }: { className?: string }) => (
   <svg
@@ -20,12 +27,14 @@ const TakaIcon = ({ className }: { className?: string }) => (
     strokeLinejoin="round"
     className={className}
   >
-    <text x="6" y="18" fontSize="16">৳</text>
+    <text x="6" y="18" fontSize="16">
+      ৳
+    </text>
   </svg>
-)
+);
 
 export default function BillingPage() {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
   const [billingData, setBillingData] = useState<BillingHistory | null>({
     installments: [],
     records: [],
@@ -34,14 +43,14 @@ export default function BillingPage() {
       totalBill: 0,
       totalPaid: 0,
       balance: 0,
-      totalDiscount: 0
-    }
+      totalDiscount: 0,
+    },
   });
 
   useEffect(() => {
-    getBilling().then(data => {
+    getBilling().then((data) => {
       console.log(data);
-      if (data && 'error' in data) {
+      if (data && "error" in data) {
         console.error(data.error);
       } else {
         setBillingData(data);
@@ -49,11 +58,12 @@ export default function BillingPage() {
     });
   }, []);
 
-  const filteredTransactions = billingData?.records.filter(transaction => 
-    Object.values(transaction).some(value => 
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  ) ?? [];
+  const filteredTransactions =
+    billingData?.records.filter((transaction) =>
+      Object.values(transaction).some((value) =>
+        value?.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    ) ?? [];
 
   return (
     <div className="container mx-auto max-w-7xl p-4">
@@ -66,7 +76,9 @@ export default function BillingPage() {
             <TakaIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData?.summary.totalFee.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ৳{billingData?.summary.totalFee.toLocaleString()}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -75,7 +87,9 @@ export default function BillingPage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData?.summary.totalBill.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ৳{billingData?.summary.totalBill.toLocaleString()}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -84,7 +98,9 @@ export default function BillingPage() {
             <TakaIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData?.summary.totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ৳{billingData?.summary.totalPaid.toLocaleString()}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -93,9 +109,13 @@ export default function BillingPage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData?.summary.balance.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ৳{billingData?.summary.balance.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {billingData?.summary.balance && billingData.summary.balance < 0 ? 'Advance Payment' : 'Due'}
+              {billingData?.summary.balance && billingData.summary.balance < 0
+                ? "Advance Payment"
+                : "Due"}
             </p>
           </CardContent>
         </Card>
@@ -106,7 +126,7 @@ export default function BillingPage() {
           <CardTitle>Installment Schedule</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto max-w-[60vw]">
+          <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -147,7 +167,7 @@ export default function BillingPage() {
               className="max-w-sm"
             />
           </div>
-          <div className="overflow-x-auto max-w-[60vw]">
+          <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -170,9 +190,15 @@ export default function BillingPage() {
                     <TableCell>{transaction.feeType}</TableCell>
                     <TableCell>{transaction.courseCode}</TableCell>
                     <TableCell>{transaction.credit}</TableCell>
-                    <TableCell>{transaction.amount ? `৳${transaction.amount}` : ''}</TableCell>
-                    <TableCell>{transaction.discount ? `৳${transaction.discount}` : ''}</TableCell>
-                    <TableCell>{transaction.payment ? `৳${transaction.payment}` : ''}</TableCell>
+                    <TableCell>
+                      {transaction.amount ? `৳${transaction.amount}` : ""}
+                    </TableCell>
+                    <TableCell>
+                      {transaction.discount ? `৳${transaction.discount}` : ""}
+                    </TableCell>
+                    <TableCell>
+                      {transaction.payment ? `৳${transaction.payment}` : ""}
+                    </TableCell>
                     <TableCell>{transaction.trimesterName}</TableCell>
                     <TableCell>{transaction.date}</TableCell>
                     <TableCell>{transaction.remark}</TableCell>
@@ -190,5 +216,5 @@ export default function BillingPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
