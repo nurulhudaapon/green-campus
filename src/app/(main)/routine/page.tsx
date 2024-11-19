@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, Users } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Download } from 'lucide-react'
 import { getClassRoutine } from './action'
+import { generateICSFile } from '@/lib/calendar'
 
 type ClassSchedule = {
   formalCode: string
@@ -33,11 +34,30 @@ export default function ClassRoutinePage() {
     return classSchedules.find(cls => cls.day === day && cls.time === timeSlot)
   }
 
+  const handleDownloadCalendar = () => {
+    const icsContent = generateICSFile(classSchedules)
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.setAttribute('download', 'class-routine.ics')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="container mx-auto max-w-6xl">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Class Routine</h1>
         <div className="space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleDownloadCalendar}
+            className="mr-2"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Calendar
+          </Button>
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             onClick={() => setViewMode('list')}

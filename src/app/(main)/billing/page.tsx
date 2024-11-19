@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { CreditCard, Calendar, Search } from 'lucide-react'
+import { BillingHistory, getBilling } from './action'
 
 const TakaIcon = ({ className }: { className?: string }) => (
   <svg
@@ -25,36 +26,38 @@ const TakaIcon = ({ className }: { className?: string }) => (
 
 export default function BillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [billingData, setBillingData] = useState<BillingHistory | null>({
+    installments: [],
+    records: [],
+    summary: {
+      totalFee: 0,
+      totalBill: 0,
+      totalPaid: 0,
+      balance: 0,
+      totalDiscount: 0
+    }
+  });
 
-  const billingData = {
-    totalFee: 418100,
-    totalBill: 227990,
-    totalPaid: 228190,
-    balance: -200,
-    installments: [
-      { number: '1st Installment', dueDate: '19/08/2024', amount: 7500.00, payable: 0.00, lateFee: 0.00 },
-      { number: '2nd Installment', dueDate: '09/09/2024', amount: 8200.00, payable: 0.00, lateFee: 0.00 },
-      { number: '3rd Installment', dueDate: '15/10/2024', amount: 6060.00, payable: 0.00, lateFee: 0.00 },
-      { number: '4th Installment', dueDate: '10/12/2024', amount: 6060.00, payable: -200.00, lateFee: 0.00 },
-    ],
-    transactions: [
-      { slNo: 1, feeType: 'Student Payment', courseCode: '', credit: '', amount: '', discount: '', payment: 1550, trimesterName: '', date: '17/11/2024', remark: '' },
-      { slNo: 2, feeType: 'Mid Term Improvement Exam Fee', courseCode: 'CSE 323', credit: 3, amount: 1500, discount: '', payment: '', trimesterName: 'Fall 2024', date: '15/11/2024', remark: 'Exam Fee' },
-      { slNo: 3, feeType: 'Student Payment', courseCode: '', credit: '', amount: '', discount: '', payment: 10000, trimesterName: '', date: '11/10/2024', remark: '' },
-      { slNo: 4, feeType: '10% Special Tuition', courseCode: '', credit: '', amount: '', discount: -5320, payment: '', trimesterName: 'Fall 2024', date: '03/10/2024', remark: '10% Special Waiver' },
-      { slNo: 5, feeType: 'Tuition Fees', courseCode: 'CSE 312-CSE(181)', credit: 1.5, amount: 4200, discount: '', payment: '', trimesterName: 'Fall 2024', date: '21/08/2024', remark: '' },
-    ]
-  }
+  useEffect(() => {
+    getBilling().then(data => {
+      console.log(data);
+      if (data && 'error' in data) {
+        console.error(data.error);
+      } else {
+        setBillingData(data);
+      }
+    });
+  }, []);
 
-  const filteredTransactions = billingData.transactions.filter(transaction => 
+  const filteredTransactions = billingData?.records.filter(transaction => 
     Object.values(transaction).some(value => 
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
-  )
+  ) ?? [];
 
   return (
     <div className="container mx-auto max-w-6xl">
-      <h1 className="mb-6 text-3xl font-bold">Billing History (Dummy Data)</h1>
+      <h1 className="mb-6 text-3xl font-bold">Billing History</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -63,7 +66,7 @@ export default function BillingPage() {
             <TakaIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData.totalFee.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{billingData?.summary.totalFee.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -72,7 +75,7 @@ export default function BillingPage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{billingData.totalBill.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{billingData?.summary.totalBill.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -81,7 +84,7 @@ export default function BillingPage() {
             <TakaIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">৳{billingData.totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{billingData?.summary.totalPaid.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -90,9 +93,9 @@ export default function BillingPage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{billingData.balance.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{billingData?.summary.balance.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {billingData.balance < 0 ? 'Advance Payment' : 'Due'}
+              {billingData?.summary.balance && billingData.summary.balance < 0 ? 'Advance Payment' : 'Due'}
             </p>
           </CardContent>
         </Card>
@@ -114,7 +117,7 @@ export default function BillingPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {billingData.installments.map((installment, index) => (
+              {billingData?.installments.map((installment, index) => (
                 <TableRow key={index}>
                   <TableCell>{installment.number}</TableCell>
                   <TableCell>{installment.dueDate}</TableCell>
