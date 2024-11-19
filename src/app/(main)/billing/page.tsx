@@ -56,7 +56,7 @@ export default function BillingPage() {
   ) ?? [];
 
   return (
-    <div className="container mx-auto max-w-6xl">
+    <div className="container mx-auto max-w-7xl p-4">
       <h1 className="mb-6 text-3xl font-bold">Billing History</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -106,28 +106,30 @@ export default function BillingPage() {
           <CardTitle>Installment Schedule</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Installment Number</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Payable</TableHead>
-                <TableHead>Late Fee</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {billingData?.installments.map((installment, index) => (
-                <TableRow key={index}>
-                  <TableCell>{installment.number}</TableCell>
-                  <TableCell>{installment.dueDate}</TableCell>
-                  <TableCell>৳{installment.amount.toFixed(2)}</TableCell>
-                  <TableCell>৳{installment.payable.toFixed(2)}</TableCell>
-                  <TableCell>৳{installment.lateFee.toFixed(2)}</TableCell>
+          <div className="overflow-x-auto max-w-[60vw]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Installment Number</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Payable</TableHead>
+                  <TableHead>Late Fee</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {billingData?.installments.map((installment, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{installment.number}</TableCell>
+                    <TableCell>{installment.dueDate}</TableCell>
+                    <TableCell>৳{installment.amount.toFixed(2)}</TableCell>
+                    <TableCell>৳{installment.payable.toFixed(2)}</TableCell>
+                    <TableCell>৳{installment.lateFee.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -145,38 +147,40 @@ export default function BillingPage() {
               className="max-w-sm"
             />
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>SL No.</TableHead>
-                <TableHead>Fee Type</TableHead>
-                <TableHead>Course Code</TableHead>
-                <TableHead>Credit</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Trimester Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Remark</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.slNo}>
-                  <TableCell>{transaction.slNo}</TableCell>
-                  <TableCell>{transaction.feeType}</TableCell>
-                  <TableCell>{transaction.courseCode}</TableCell>
-                  <TableCell>{transaction.credit}</TableCell>
-                  <TableCell>{transaction.amount ? `৳${transaction.amount}` : ''}</TableCell>
-                  <TableCell>{transaction.discount ? `৳${transaction.discount}` : ''}</TableCell>
-                  <TableCell>{transaction.payment ? `৳${transaction.payment}` : ''}</TableCell>
-                  <TableCell>{transaction.trimesterName}</TableCell>
-                  <TableCell>{transaction.date}</TableCell>
-                  <TableCell>{transaction.remark}</TableCell>
+          <div className="overflow-x-auto max-w-[60vw]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>SL No.</TableHead>
+                  <TableHead>Fee Type</TableHead>
+                  <TableHead>Course Code</TableHead>
+                  <TableHead>Credit</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Trimester Name</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Remark</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions.map((transaction) => (
+                  <TableRow key={transaction.slNo}>
+                    <TableCell>{transaction.slNo}</TableCell>
+                    <TableCell>{transaction.feeType}</TableCell>
+                    <TableCell>{transaction.courseCode}</TableCell>
+                    <TableCell>{transaction.credit}</TableCell>
+                    <TableCell>{transaction.amount ? `৳${transaction.amount}` : ''}</TableCell>
+                    <TableCell>{transaction.discount ? `৳${transaction.discount}` : ''}</TableCell>
+                    <TableCell>{transaction.payment ? `৳${transaction.payment}` : ''}</TableCell>
+                    <TableCell>{transaction.trimesterName}</TableCell>
+                    <TableCell>{transaction.date}</TableCell>
+                    <TableCell>{transaction.remark}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

@@ -1,10 +1,16 @@
-
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from 'lucide-react';
 import { HeaderProfile } from '../component';
+import { 
+  UserCircle, 
+  CreditCard, 
+  GraduationCap,
+  ClipboardList,
+  Calendar
+} from 'lucide-react';
 
 export default function RootLayout({
   children,
@@ -14,24 +20,31 @@ export default function RootLayout({
   // const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const navItems = [
-    // { href: "/", label: "Home" },
-    { href: "/profile", label: "Profile" },
-    { href: "/billing", label: "Billing" },
-    { href: "/result", label: "Result" },
-    // { href: "/course-evaluation", label: "Course Evaluation" },
-    // { href: "/pre-registration-retake", label: "Pre-Registration (Retake Course)" },
-    { href: "/preregistration", label: "Pre-Registration" },
-    // { href: "/registration-confirmation", label: "Registration Confirmation" },
-    { href: "/routine", label: "Routine" },
-    // { href: "/password-change", label: "Password Change" },
-    // { href: "/course-drop", label: "Course Drop" },
-    // { href: "/semester-drop", label: "Semester Drop" },
-    // { href: "/program-change", label: "Student Program Change" },
-    // { href: "/ledger", label: "Student Ledger" },
-    // { href: "/admit-card", label: "Student Admit Card" },
-    // { href: "/special-exam", label: "Student Special Exam Apply" },
-    // { href: "/exam-routine", label: "Student Exam Routine" },
-    // { href: "/teams-password", label: "Teams User ID Password" },
+    { 
+      href: "/profile", 
+      label: "Profile",
+      icon: UserCircle 
+    },
+    { 
+      href: "/billing", 
+      label: "Billing",
+      icon: CreditCard 
+    },
+    { 
+      href: "/result", 
+      label: "Result",
+      icon: GraduationCap 
+    },
+    { 
+      href: "/preregistration", 
+      label: "Pre-Registration",
+      icon: ClipboardList 
+    },
+    { 
+      href: "/routine", 
+      label: "Routine",
+      icon: Calendar 
+    },
   ]
 
   return (
@@ -49,14 +62,14 @@ export default function RootLayout({
                 </Button>
               </SheetTrigger> 
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col space-y-4">
+                <nav className="flex flex-col space-y-2">
                   {navItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="text-sm font-medium text-gray-900 hover:text-gray-600"
-                      // onClick={() => setIsSidebarOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors"
                     >
+                      <item.icon className="h-5 w-5 text-gray-500" />
                       {item.label}
                     </Link>
                   ))}
@@ -88,8 +101,9 @@ export default function RootLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors"
               >
+                <item.icon className="h-5 w-5 text-gray-500" />
                 {item.label}
               </Link>
             ))}

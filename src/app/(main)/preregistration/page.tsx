@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
+import { Info } from 'lucide-react'
 type Section = {
   name: string
   availableSeats: number
@@ -84,7 +84,11 @@ export default function PreRegistrationPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-4">
+    <div className="container mx-auto max-w-7xl p-4">
+      <h5 className="flex items-center gap-2 text-sm text-gray-500">
+        <Info className="h-4 w-4" />
+        Dummy Data - Under Development
+      </h5>
       <h1 className="mb-6 text-3xl font-bold">Pre-Registration</h1>
       <Card>
         <CardHeader>
@@ -128,7 +132,7 @@ export default function PreRegistrationPage() {
                       {selectedSections[course.code] ? (
                         <Badge>{selectedSections[course.code]}</Badge>
                       ) : (
-                        <span className="text-gray-400">Not selected</span>
+                        <span className="text-gray-400">None</span>
                       )}
                     </TableCell>
                   </TableRow>

@@ -7,8 +7,6 @@ export async function HeaderProfile() {
 
     if (profile.error) return null;
 
-    console.log(profile);
-
     return (
         <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">

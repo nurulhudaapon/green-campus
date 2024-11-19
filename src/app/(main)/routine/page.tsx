@@ -46,30 +46,34 @@ export default function ClassRoutinePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="container mx-auto max-w-7xl p-4">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold">Class Routine</h1>
-        <div className="space-x-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:space-x-2">
           <Button
             variant="outline"
             onClick={handleDownloadCalendar}
-            className="mr-2"
+            className="w-full sm:w-auto"
           >
             <Download className="mr-2 h-4 w-4" />
             Download Calendar
           </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            onClick={() => setViewMode('list')}
-          >
-            List View
-          </Button>
-          <Button
-            variant={viewMode === 'schedule' ? 'default' : 'outline'}
-            onClick={() => setViewMode('schedule')}
-          >
-            Schedule View
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              onClick={() => setViewMode('list')}
+              className="flex-1 sm:flex-none"
+            >
+              List View
+            </Button>
+            <Button
+              variant={viewMode === 'schedule' ? 'default' : 'outline'}
+              onClick={() => setViewMode('schedule')}
+              className="flex-1 sm:flex-none"
+            >
+              Schedule View
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -104,36 +108,38 @@ export default function ClassRoutinePage() {
           ))}
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Time / Day</TableHead>
-              {days.map(day => (
-                <TableHead key={day}>{day}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {timeSlots.map(timeSlot => (
-              <TableRow key={timeSlot}>
-                <TableCell className="font-medium">{timeSlot}</TableCell>
-                {days.map(day => {
-                  const cls = getClassForTimeSlot(day, timeSlot)
-                  return (
-                    <TableCell key={day}>
-                      {cls && (
-                        <div className="space-y-1">
-                          <div className="font-medium">{cls.courseTitle}</div>
-                          <div className="text-sm text-muted-foreground">{cls.room}</div>
-                        </div>
-                      )}
-                    </TableCell>
-                  )
-                })}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Time / Day</TableHead>
+                {days.map(day => (
+                  <TableHead key={day}>{day}</TableHead>
+                ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {timeSlots.map(timeSlot => (
+                <TableRow key={timeSlot}>
+                  <TableCell className="font-medium">{timeSlot}</TableCell>
+                  {days.map(day => {
+                    const cls = getClassForTimeSlot(day, timeSlot)
+                    return (
+                      <TableCell key={day}>
+                        {cls && (
+                          <div className="space-y-1">
+                            <div className="font-medium">{cls.courseTitle}</div>
+                            <div className="text-sm text-muted-foreground">{cls.room}</div>
+                          </div>
+                        )}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   )

@@ -8,10 +8,8 @@ import { getStudentInfo } from './action'
 export default async function ProfilePage() {
   const studentInfo = await getStudentInfo()
 
-  console.log({ studentInfo })
-
   return (
-    <div className="container mx-auto max-w-6xl">
+    <div className="container mx-auto max-w-7xl p-4 overflow-x-hidden">
       <h1 className="mb-6 text-3xl font-bold">Student Profile</h1>
       <Card className="mb-6">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -39,7 +37,7 @@ export default async function ProfilePage() {
 
       <Tabs defaultValue="personal" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="personal">Personal Information</TabsTrigger>
+          <TabsTrigger value="personal">Personal </TabsTrigger>
           <TabsTrigger value="academic">Academic Information</TabsTrigger>
           <TabsTrigger value="contact">Contact Information</TabsTrigger>
         </TabsList>
