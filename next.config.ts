@@ -1,15 +1,15 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    /* config options here */
 
-  images: {
-    remotePatterns: [
-      {
-        hostname: "studentportal.green.edu.bd",
-      },
-    ],
-  },
-};
+    images: {
+        remotePatterns: [
+            {
+                hostname: 'studentportal.green.edu.bd',
+            },
+        ],
+    },
+}
 
-export default nextConfig;
+export default nextConfig

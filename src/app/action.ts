@@ -1,10 +1,10 @@
-"use server";
+'use server'
 
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
 export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth");
-  redirect("/login");
+    const cookieStore = await cookies()
+    cookieStore.delete('auth')
+    redirect('/login')
 }
