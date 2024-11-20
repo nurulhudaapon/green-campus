@@ -1,106 +1,140 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { getStudentInfo } from '../profile/action'
+import { redirect } from 'next/navigation'
 
 const BASE_URL = 'https://studentportal.green.edu.bd'
 
 export async function getCourses() {
-    const student = await getStudentInfo()
-    console.log({ student })
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+        redirect('/login')
+    }
+    let courses: Course[] = []
 
-    // const courses = await (
-    //     await fetch(
-    //         BASE_URL + '/api/AutoAssignCourse?studentId=' + student.studentID,
-    //         {
-    //             method: 'POST',
-    //         }
-    //     )
-    // ).json()
+    try {
+        const student = await getStudentInfo()
+        console.log({ student })
+        const coursesResponse = await (
+            await fetch(
+                BASE_URL +
+                    '/api/AutoAssignCourse?studentId=' +
+                    student.studentID,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        cookie: token,
+                    },
+                }
+            )
+        ).json()
 
-    return DUMMY_COURSES
+        courses = coursesResponse
+    } catch (error) {
+        console.error(error)
+    }
+    if (!courses?.length) {
+        return DUMMY_COURSES.map((c) => ({
+            ...c,
+            formalCode: 'Dummy - ' + c.formalCode,
+        }))
+    }
+    return courses
 }
 
 export async function getSections(course: Course) {
-    const sectionParam = new URLSearchParams({
-        acaCalId: course.originalCalID.toString() ?? '',
-        courseId: course.courseID.toString() ?? '',
-        programId: '2',
-        versionId: '1',
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+        redirect('/login')
+    }
+    let sections: Section[] = []
+
+    try {
+        const sectionParam = new URLSearchParams({
+            acaCalId: course.originalCalID.toString() ?? '',
+            courseId: course.courseID.toString() ?? '',
+            programId: '2',
+            versionId: '1',
+        })
+
+        const sectionsResponse = await (
+            await fetch(
+                'https://studentportal.green.edu.bd/api/CourseSectionInfo?' +
+                    sectionParam.toString(),
+                { method: 'POST', headers: { cookie: token } }
+            )
+        ).json()
+        sections = sectionsResponse
+    } catch (error) {
+        console.error(error)
+    }
+
+    // Generate a random number of sections between 20-40
+    const numSections = Math.floor(Math.random() * (40 - 20 + 1)) + 20
+
+    // Generate sections array based on course
+    const dummySections = Array.from({ length: numSections }, (_, i) => {
+        // Generate random capacity between 30-60
+        const capacity = Math.floor(Math.random() * (60 - 30 + 1)) + 30
+        // Generate random occupied seats between 0 and capacity
+        const occupied = Math.floor(Math.random() * (capacity + 1))
+
+        return {
+            acaCal_SectionID: course.courseID * 100 + i, // Unique ID based on course
+            sectionName: `D${i + 1}`,
+            capacity,
+            occupied,
+        }
     })
-
-    // const sections = await (
-    //     await fetch(
-    //         BASE_URL + '/api/CourseSectionInfo?' + sectionParam.toString(),
-    //         { method: 'POST' }
-    //     )
-    // ).json()
-    // const sectionObj = sections.find(
-    //     (x: any) => x.sectionName === course.sectionName
-    // )
-
-    // //   if (!sectionObj) {
-    // //     message = `Section ${sectionCode} not found for course ${courseTitle}.`;
-    // //     return message;
-    // //   }
-
-    // const seatCount = sectionObj.capacity - sectionObj.occupied
-
-    //   message = `${new Date().toLocaleTimeString()}: [${courseTitle}] Remaining Seat --> ${seatCount}`
-
-    //   if (seatCount == 0) {
-    //     message += " --> Seat not available";
-    //     return message;
-    //   }
-
-    //   const selectSectionParam = new URLSearchParams({
-    //     regWorkSheetId: course.regWorksheetId,
-    //     newSectionId: sectionObj.acaCal_SectionID,
-    //     sectionName: sectionCode,
-    //     studentId: course.studentID,
-    //     courseCode: sectionObj.formalCode,
-    //     courseId: course.courseID,
-    //     programId: 2,
-    //     versionId: 1,
-    //     url: "https://studentportal.green.edu.bd/Student/StudentSectionSelection"
-    //   });
-
-    //   const selectSectionRes = (await fetch("https://studentportal.green.edu.bd/api/SectionTake?" + selectSectionParam.toString(), {
-    //     method: "POST",
-    //   })).text();
-
-    //   if (selectSectionRes) message += " --> Successfully registered";
-
-    return DUMMY_SECTIONS
-    // return sectionObj
+    if (!sections?.length) {
+        return dummySections
+    }
+    return sections
 }
 
-// Upto D20
-const DUMMY_SECTIONS: Section[] = [
-    {
-        acaCal_SectionID: 1,
-        sectionName: 'D1',
-        capacity: 30,
-        occupied: 20,
-    },
-    {
-        acaCal_SectionID: 1,
-        sectionName: 'D2',
-        capacity: 30,
-        occupied: 20,
-    },
-    {
-        acaCal_SectionID: 3,
-        sectionName: 'D3',
-        capacity: 30,
-        occupied: 20,
-    },
-    {
-        acaCal_SectionID: 4,
-        sectionName: 'D4',
-        capacity: 30,
-        occupied: 20,
-    },
-]
+export async function registerSection(section: Section, course: Course) {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+        redirect('/login')
+    }
+
+    try {
+        const selectSectionParam = new URLSearchParams({
+            regWorkSheetId: course.regWorksheetId.toString(),
+            newSectionId: section.acaCal_SectionID.toString(),
+            sectionName: section.sectionName,
+            studentId: course.studentID.toString(),
+            courseCode: course.formalCode,
+            courseId: course.courseID.toString(),
+            programId: '2',
+            versionId: '1',
+            url: 'https://studentportal.green.edu.bd/Student/StudentSectionSelection',
+        })
+
+        const selectSectionRes = await (
+            await fetch(
+                'https://studentportal.green.edu.bd/api/SectionTake?' +
+                    selectSectionParam.toString(),
+                {
+                    method: 'POST',
+                    headers: { cookie: token },
+                }
+            )
+        ).text()
+
+        if (selectSectionRes == '1') return 'Successfully registered'
+    } catch (error) {
+        console.error(error)
+    }
+
+    return 'Failed to register'
+}
+
 export interface Section {
     acaCal_SectionID: number
     sectionName: string
