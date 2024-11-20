@@ -57,7 +57,7 @@ export default function ResultHistoryPage() {
                             <CardTitle>Trimester wise GPA and CGPA</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
+                            <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -147,7 +147,7 @@ export default function ResultHistoryPage() {
                                     }
                                 />
                             </div>
-                            <div className="overflow-x-auto max-w-[60vw]">
+                            <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>

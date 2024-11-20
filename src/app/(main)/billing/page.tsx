@@ -11,8 +11,8 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { CreditCard, Calendar, Search } from 'lucide-react'
 import { BillingHistory, getBilling } from './action'
 
@@ -67,6 +67,28 @@ export default function BillingPage() {
                     .includes(searchTerm.toLowerCase())
             )
         ) ?? []
+
+    const getBadgeColor = (feeType: string) => {
+        switch (feeType.toLowerCase()) {
+            case 'tuition':
+                return 'bg-blue-500'
+            case 'admission':
+                return 'bg-green-500'
+            case 'library':
+                return 'bg-yellow-500'
+            case 'exam':
+                return 'bg-red-500'
+            default:
+                return 'bg-gray-500'
+        }
+    }
+
+    const getAmountColor = (amount: number | string) => {
+        if (typeof amount === 'string') {
+            amount = parseFloat(amount)
+        }
+        return amount < 0 ? 'text-green-500' : 'text-red-500'
+    }
 
     return (
         <div className="container mx-auto max-w-7xl p-4">
@@ -138,15 +160,25 @@ export default function BillingPage() {
                     <CardTitle>Installment Schedule</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
+                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Installment Number</TableHead>
-                                    <TableHead>Due Date</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Payable</TableHead>
-                                    <TableHead>Late Fee</TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Installment <br /> Number
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Due Date
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Amount
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Payable
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Late Fee
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -154,7 +186,9 @@ export default function BillingPage() {
                                     (installment, index) => (
                                         <TableRow key={index}>
                                             <TableCell>
-                                                {installment.number}
+                                                {installment.number
+                                                    .split(' ')
+                                                    .at(0)}
                                             </TableCell>
                                             <TableCell>
                                                 {installment.dueDate}
@@ -176,6 +210,12 @@ export default function BillingPage() {
                             </TableBody>
                         </Table>
                     </div>
+                    <div className="mt-6 flex justify-center">
+                        <Button>
+                            <Calendar className="mr-2 h-4 w-4" /> Pay Next
+                            Installment
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -193,20 +233,26 @@ export default function BillingPage() {
                             className="max-w-sm"
                         />
                     </div>
-                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[50vw] lg:max-w-[65vw]">
+                    <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>SL No.</TableHead>
-                                    <TableHead>Fee Type</TableHead>
-                                    <TableHead>Course Code</TableHead>
-                                    <TableHead>Credit</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Discount</TableHead>
-                                    <TableHead>Payment</TableHead>
-                                    <TableHead>Trimester Name</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Remark</TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        SL <br />
+                                        No.
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Fee Type
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Amount
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Date
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        Details
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -218,35 +264,71 @@ export default function BillingPage() {
                                         <TableCell>
                                             {transaction.feeType}
                                         </TableCell>
-                                        <TableCell>
-                                            {transaction.courseCode}
-                                        </TableCell>
-                                        <TableCell>
-                                            {transaction.credit}
-                                        </TableCell>
-                                        <TableCell>
-                                            {transaction.amount
-                                                ? `৳${transaction.amount}`
-                                                : ''}
-                                        </TableCell>
-                                        <TableCell>
-                                            {transaction.discount
-                                                ? `৳${transaction.discount}`
-                                                : ''}
-                                        </TableCell>
-                                        <TableCell>
-                                            {transaction.payment
-                                                ? `৳${transaction.payment}`
-                                                : ''}
-                                        </TableCell>
-                                        <TableCell>
-                                            {transaction.trimesterName}
+                                        <TableCell
+                                            className={getAmountColor(
+                                                transaction.amount ||
+                                                    -transaction.payment ||
+                                                    transaction.discount ||
+                                                    0
+                                            )}
+                                        >
+                                            ৳
+                                            {transaction.amount ||
+                                                -transaction.payment ||
+                                                transaction.discount ||
+                                                0}
                                         </TableCell>
                                         <TableCell>
                                             {transaction.date}
                                         </TableCell>
-                                        <TableCell>
-                                            {transaction.remark}
+                                        <TableCell className="flex items-center justify-center lg:justify-start lg:xitems-start">
+                                            <div className="flex flex-col gap-2 items-center justify-center lg:flex-row lg:flex-wrap lg:justify-start lg:items-start ">
+                                                {transaction.courseCode && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-purple-100"
+                                                    >
+                                                        {transaction.courseCode}
+                                                    </Badge>
+                                                )}
+                                                {transaction.trimesterName && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-orange-100"
+                                                    >
+                                                        {
+                                                            transaction.trimesterName
+                                                        }
+                                                    </Badge>
+                                                )}
+                                                {transaction.credit && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-blue-100"
+                                                    >
+                                                        {transaction.credit}{' '}
+                                                        credits
+                                                    </Badge>
+                                                )}
+                                                {transaction.discount && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-green-100"
+                                                    >
+                                                        {transaction.credit}{' '}
+                                                        Discounts
+                                                    </Badge>
+                                                )}
+                                                {transaction.payment && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-green-100"
+                                                    >
+                                                        {transaction.credit}{' '}
+                                                        Payments
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -255,12 +337,6 @@ export default function BillingPage() {
                     </div>
                 </CardContent>
             </Card>
-
-            <div className="mt-6 flex justify-end">
-                <Button>
-                    <Calendar className="mr-2 h-4 w-4" /> Pay Next Installment
-                </Button>
-            </div>
         </div>
     )
 }

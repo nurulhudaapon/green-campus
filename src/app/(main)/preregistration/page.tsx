@@ -105,7 +105,7 @@ export default function PreRegistrationPage() {
                 </CardHeader>
                 <CardContent>
                     <ScrollArea className="h-[600px]">
-                        <div className="overflow-x-auto max-w-[68vw]">
+                        <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
                             <Table>
                                 <TableHeader>
                                     <TableRow>

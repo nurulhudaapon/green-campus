@@ -58,7 +58,7 @@ export default function RootLayout({
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="md:hidden"
+                                    className="lg:hidden"
                                 >
                                     <Menu className="h-6 w-6" />
                                     <span className="sr-only">Toggle menu</span>
@@ -103,7 +103,7 @@ export default function RootLayout({
             {/* Sidebar and Main Content */}
             <div className="flex">
                 {/* Sidebar for larger screens */}
-                <aside className="fixed bottom-0 left-0 top-16 hidden w-64 overflow-y-auto border-r bg-white px-3 py-4 md:block">
+                <aside className="fixed bottom-0 left-0 top-16 hidden w-64 overflow-y-auto border-r bg-white px-3 py-4 lg:block">
                     <nav className="space-y-1">
                         {navItems.map((item) => (
                             <Link
@@ -119,7 +119,7 @@ export default function RootLayout({
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 px-4 py-8 md:ml-64 md:px-6">
+                <main className="flex-1 px-4 py-8 lg:ml-64 lg:px-6">
                     {children}
                 </main>
             </div>

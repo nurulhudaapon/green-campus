@@ -93,7 +93,7 @@ export default function ClassRoutinePage() {
             </div>
 
             {viewMode === 'list' ? (
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {classSchedules.map((cls, index) => (
                         <Card key={index}>
                             <CardHeader>
