@@ -22,67 +22,24 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog'
 import { Info, X, Check } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { getCourses, getSections } from './action'
 
-type Section = {
-    name: string
-    availableSeats: number
-    totalSeats: number
+interface Course {
+    courseID: number
+    formalCode: string
+    courseTitle: string
 }
 
-type Course = {
-    code: string
-    title: string
-    sections: Section[]
+interface Section {
+    acaCal_SectionID: number
+    sectionName: string
+    capacity: number
+    occupied: number
 }
-
-const courses: Course[] = [
-    {
-        code: 'CSE 323',
-        title: 'Computer and Cyber Security',
-        sections: [
-            { name: 'D1', availableSeats: 25, totalSeats: 30 },
-            { name: 'D2', availableSeats: 30, totalSeats: 30 },
-            { name: 'D3', availableSeats: 15, totalSeats: 30 },
-        ],
-    },
-    {
-        code: 'CSE 311',
-        title: 'Computer Networking',
-        sections: [
-            { name: 'D1', availableSeats: 20, totalSeats: 30 },
-            { name: 'D2', availableSeats: 28, totalSeats: 30 },
-            { name: 'D3', availableSeats: 10, totalSeats: 30 },
-            { name: 'D4', availableSeats: 30, totalSeats: 30 },
-        ],
-    },
-    {
-        code: 'CSE 312',
-        title: 'Computer Networking Lab',
-        sections: [
-            { name: 'D1', availableSeats: 15, totalSeats: 30 },
-            { name: 'D2', availableSeats: 22, totalSeats: 30 },
-        ],
-    },
-    {
-        code: 'GED 401',
-        title: 'Financial and Managerial Accounting',
-        sections: [
-            { name: 'D1', availableSeats: 30, totalSeats: 30 },
-            { name: 'D2', availableSeats: 25, totalSeats: 30 },
-            { name: 'D3', availableSeats: 20, totalSeats: 30 },
-        ],
-    },
-    {
-        code: 'CSE 403',
-        title: 'Information System and Design',
-        sections: [
-            { name: 'D1', availableSeats: 18, totalSeats: 30 },
-            { name: 'D2', availableSeats: 23, totalSeats: 30 },
-        ],
-    },
-]
 
 export default function PreRegistrationPage() {
+
     const [selectedSections, setSelectedSections] = useState<{
         [key: string]: string
     }>({})
@@ -95,6 +52,20 @@ export default function PreRegistrationPage() {
         courseCode: string
         sectionName: string
     } | null>(null)
+
+    const coursesQuery = useQuery<Course[]>({ queryKey: ['courses'], queryFn: () => getCourses() })
+    const sectionsQuery = useQuery<Section[]>({ 
+        queryKey: ['sections'], 
+        queryFn: () => getSections(coursesQuery.data?.[0] ?? {} as Course) 
+    })
+
+    if (coursesQuery.isLoading) {
+        return <div className="container mx-auto max-w-7xl p-4">Loading courses...</div>
+    }
+
+    if (coursesQuery.error) {
+        return <div className="container mx-auto max-w-7xl p-4">Error loading courses: {coursesQuery.error.message}</div>
+    }
 
     const handleSectionSelect = (courseCode: string, sectionName: string) => {
         if (selectedSections[courseCode] === sectionName) {
@@ -173,128 +144,88 @@ export default function PreRegistrationPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {courses.map((course) => (
-                                        <TableRow key={course.code}>
-                                            <TableCell>{course.code}</TableCell>
+                                    {coursesQuery.data?.map((course) => (
+                                        <TableRow key={course.courseID}>
+                                            <TableCell>{course.formalCode}</TableCell>
+                                            <TableCell>{course.courseTitle}</TableCell>
                                             <TableCell>
-                                                {course.title}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {course.sections.map(
-                                                        (section) => (
+                                                {sectionsQuery.isLoading ? (
+                                                    <div>Loading sections...</div>
+                                                ) : sectionsQuery.error ? (
+                                                    <div>Error loading sections: {sectionsQuery.error.message}</div>
+                                                ) : (
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {sectionsQuery.data?.filter(section => 
+                                                            section.acaCal_SectionID === course.courseID
+                                                        ).map((section) => (
                                                             <Button
-                                                                key={
-                                                                    section.name
-                                                                }
+                                                                key={section.acaCal_SectionID}
                                                                 variant={
-                                                                    selectedSections[
-                                                                        course
-                                                                            .code
-                                                                    ] ===
-                                                                    section.name
+                                                                    selectedSections[course.formalCode] === section.sectionName
                                                                         ? 'default'
                                                                         : 'outline'
                                                                 }
                                                                 size="sm"
                                                                 className={`
-                                                                ${
-                                                                    selectedSections[
-                                                                        course
-                                                                            .code
-                                                                    ] ===
-                                                                    section.name
-                                                                        ? 'bg-primary text-primary-foreground'
-                                                                        : getBackgroundColor(
-                                                                              section.availableSeats,
-                                                                              section.totalSeats
-                                                                          )
-                                                                }
-                                                                ${
-                                                                    hoveredSection?.courseCode ===
-                                                                        course.code &&
-                                                                    hoveredSection?.sectionName ===
-                                                                        section.name
-                                                                        ? 'bg-primary text-primary-foreground'
-                                                                        : ''
-                                                                }
-                                                                transition-colors duration-200
-                                                            `}
+                                                                    ${
+                                                                        selectedSections[course.formalCode] === section.sectionName
+                                                                            ? 'bg-primary text-primary-foreground'
+                                                                            : getBackgroundColor(
+                                                                                  section.capacity - section.occupied,
+                                                                                  section.capacity
+                                                                              )
+                                                                    }
+                                                                    ${
+                                                                        hoveredSection?.courseCode === course.formalCode &&
+                                                                        hoveredSection?.sectionName === section.sectionName
+                                                                            ? 'bg-primary text-primary-foreground'
+                                                                            : ''
+                                                                    }
+                                                                    transition-colors duration-200
+                                                                `}
                                                                 onClick={() =>
-                                                                    handleSectionSelect(
-                                                                        course.code,
-                                                                        section.name
-                                                                    )
+                                                                    handleSectionSelect(course.formalCode, section.sectionName)
                                                                 }
                                                                 onMouseEnter={() =>
-                                                                    setHoveredSection(
-                                                                        {
-                                                                            courseCode:
-                                                                                course.code,
-                                                                            sectionName:
-                                                                                section.name,
-                                                                        }
-                                                                    )
+                                                                    setHoveredSection({
+                                                                        courseCode: course.formalCode,
+                                                                        sectionName: section.sectionName,
+                                                                    })
                                                                 }
-                                                                onMouseLeave={() =>
-                                                                    setHoveredSection(
-                                                                        null
-                                                                    )
-                                                                }
+                                                                onMouseLeave={() => setHoveredSection(null)}
                                                             >
-                                                                {hoveredSection?.courseCode ===
-                                                                    course.code &&
-                                                                hoveredSection?.sectionName ===
-                                                                    section.name ? (
+                                                                {hoveredSection?.courseCode === course.formalCode &&
+                                                                hoveredSection?.sectionName === section.sectionName ? (
                                                                     <Check className="mr-1 h-4 w-4" />
                                                                 ) : (
-                                                                    section.name
+                                                                    section.sectionName
                                                                 )}
-                                                                <Badge
-                                                                    variant="secondary"
-                                                                    className="ml-2"
-                                                                >
-                                                                    {
-                                                                        section.availableSeats
-                                                                    }
-                                                                    /
-                                                                    {
-                                                                        section.totalSeats
-                                                                    }
+                                                                <Badge variant="secondary" className="ml-2">
+                                                                    {section.capacity - section.occupied}/{section.capacity}
                                                                 </Badge>
                                                             </Button>
-                                                        )
-                                                    )}
-                                                </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </TableCell>
                                             <TableCell>
-                                                {selectedSections[
-                                                    course.code
-                                                ] ? (
+                                                {selectedSections[course.formalCode] ? (
                                                     <div className="flex items-center gap-2">
                                                         <Badge>
-                                                            {
-                                                                selectedSections[
-                                                                    course.code
-                                                                ]
-                                                            }
+                                                            {selectedSections[course.formalCode]}
                                                         </Badge>
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() =>
-                                                                handleCancelSelection(
-                                                                    course.code
-                                                                )
+                                                                handleCancelSelection(course.formalCode)
                                                             }
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-gray-400">
-                                                        None
-                                                    </span>
+                                                    <span className="text-gray-400">None</span>
                                                 )}
                                             </TableCell>
                                         </TableRow>

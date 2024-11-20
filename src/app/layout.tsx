@@ -1,7 +1,8 @@
+
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-
+import { QueryClientProvider } from '@/contexts/query'
 const geistSans = localFont({
     src: './fonts/GeistVF.woff',
     variable: '--font-geist-sans',
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
     description: 'GUB Portal',
 }
 
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -26,7 +28,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <main>{children}</main>
+                <QueryClientProvider >
+                    <main>{children}</main>
+                </QueryClientProvider>
             </body>
         </html>
     )
