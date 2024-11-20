@@ -39,13 +39,13 @@ export async function getCourses() {
     if (!courses?.length) {
         return DUMMY_COURSES.map((c) => ({
             ...c,
-            formalCode: 'Dummy - ' + c.formalCode,
+            formalCode: c.formalCode + ' - Dummy',
         }))
     }
     return courses
 }
 
-export async function getSections(course: Course) {
+export async function getSections(course: Course): Promise<Section[]> {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth')?.value
     if (!token) {
@@ -61,14 +61,15 @@ export async function getSections(course: Course) {
             versionId: '1',
         })
 
-        const sectionsResponse = await (
+        const sectionsResponse = 
             await fetch(
                 'https://studentportal.green.edu.bd/api/CourseSectionInfo?' +
                     sectionParam.toString(),
                 { method: 'POST', headers: { cookie: token } }
             )
-        ).json()
-        sections = sectionsResponse
+        console.log({ sectionsResponse })
+        sections = await sectionsResponse.json()
+        console.log({ sections })
     } catch (error) {
         console.error(error)
     }
@@ -91,7 +92,7 @@ export async function getSections(course: Course) {
         }
     })
     if (!sections?.length) {
-        return dummySections
+        return dummySections as Section[]
     }
     return sections
 }
@@ -126,18 +127,42 @@ export async function registerSection(section: Section, course: Course) {
                 }
             )
         ).text()
+        // Randomely return true or false
+        // const selectSectionRes = Math.random() < 0.5
+        // return selectSectionRes
 
-        if (selectSectionRes == '1') return 'Successfully registered'
+        // await new Promise((resolve) => setTimeout(resolve, 1000))
+        if (selectSectionRes == '1') return true
     } catch (error) {
         console.error(error)
     }
 
-    return 'Failed to register'
+    return false
 }
 
 export interface Section {
     acaCal_SectionID: number
     sectionName: string
+    startHour1: string
+    startMin1: string
+    startAMPM1: number | null
+    endHour1: string
+    endMin1: string
+    endAMPM1: number | null
+    dayOne: string | null
+    dayOneId: number | null
+    startHour2: string
+    startMin2: string
+    startAMPM2: number | null
+    endHour2: string
+    endMin2: string
+    endAMPM2: number | null
+    dayTwo: string | null
+    dayTwoId: number | null
+    faculty_1: string | null
+    faculty_2: string | null
+    roomNo_1: string | null
+    roomNo_2: string | null
     capacity: number
     occupied: number
 }

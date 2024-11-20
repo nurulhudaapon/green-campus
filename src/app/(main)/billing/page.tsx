@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CreditCard, Calendar, Search } from 'lucide-react'
 import { BillingHistory, getBilling } from './action'
+import { useQuery } from '@tanstack/react-query'
 
 const TakaIcon = ({ className }: { className?: string }) => (
     <svg
@@ -35,28 +36,35 @@ const TakaIcon = ({ className }: { className?: string }) => (
 
 export default function BillingPage() {
     const [searchTerm, setSearchTerm] = useState('')
-    const [billingData, setBillingData] = useState<BillingHistory | null>({
-        installments: [],
-        records: [],
-        summary: {
-            totalFee: 0,
-            totalBill: 0,
-            totalPaid: 0,
-            balance: 0,
-            totalDiscount: 0,
-        },
+
+    const billingQuery = useQuery({
+        queryKey: ['billing'],
+        queryFn: () => getBilling(),
+        initialData: {
+          installments: [],
+          records: [],
+          summary: {
+              totalFee: 0,
+              totalBill: 0,
+              totalPaid: 0,
+              balance: 0,
+              totalDiscount: 0,
+          },
+      },
     })
 
-    useEffect(() => {
-        getBilling().then((data) => {
-            console.log(data)
-            if (data && 'error' in data) {
-                console.error(data.error)
-            } else {
-                setBillingData(data)
-            }
-        })
-    }, [])
+    const billingData = billingQuery.data as BillingHistory;
+
+    if (billingQuery.isError) {
+        return <div>{billingQuery.error.message}</div>
+    }
+    if (billingQuery.isLoading) {
+        return <div>Loading...</div>
+    }
+
+    if (!billingData) {
+        return <div>No data</div>
+    }
 
     const filteredTransactions =
         billingData?.records.filter((transaction) =>

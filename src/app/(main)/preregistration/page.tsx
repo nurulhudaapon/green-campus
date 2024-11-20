@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
@@ -20,10 +20,17 @@ export default function PreRegistrationPage() {
         sectionName: string
         action: 'select' | 'cancel'
     } | null>(null)
-    const [searchQuery, setSearchQuery] = useState('')
+    const [searchQuery, setSearchQuery] = useState( typeof localStorage !== 'undefined' ? localStorage.getItem('preregistration-search') || '' : '')
     const [expandedCourses, setExpandedCourses] = useState<string[]>([])
 
     const coursesQuery = useQuery({ queryKey: ['courses'], queryFn: () => getCourses() })
+
+    // Seat already selected sections coming from coursesQuery.data
+    useEffect(() => {
+        if (coursesQuery.data) {
+            setSelectedSections(coursesQuery.data.reduce((acc, course) => ({ ...acc, [course.formalCode]: course.sectionName }), {}))
+        }
+    }, [coursesQuery.data])
 
     if (coursesQuery.isLoading) {
         return <div className="container mx-auto max-w-7xl p-4">Loading courses...</div>
@@ -45,6 +52,7 @@ export default function PreRegistrationPage() {
                 [courseCode]: sectionName,
             }))
         }
+        coursesQuery.refetch()
     }
 
     const handleConfirmChange = () => {
@@ -61,6 +69,7 @@ export default function PreRegistrationPage() {
                     return newState
                 })
             }
+            coursesQuery.refetch()
             setConfirmationData(null)
         }
     }
@@ -71,6 +80,7 @@ export default function PreRegistrationPage() {
             sectionName: selectedSections[courseCode],
             action: 'cancel',
         })
+        coursesQuery.refetch()
     }
 
     // Parse search query into array of course codes
@@ -98,6 +108,7 @@ export default function PreRegistrationPage() {
     }
 
     function matchCourseCode(code: string = '', query: string = '') {
+        console.log({ code, query })
         // Exact Match
         if (code === query) return true
 
@@ -105,9 +116,10 @@ export default function PreRegistrationPage() {
         if (code.toLowerCase() === query.toLowerCase()) return true
 
         // Only Course Code Match
-        const courseCode = code.split('-')[0]
-        const queryCode = query.split('-')[0]
-        if (courseCode.toLowerCase() === queryCode.toLowerCase()) return true
+        // Replace every but char and digit
+        const courseCode = code.split('-')[0]?.replace(/[^a-zA-Z0-9]/g, '')
+        const queryCode = query?.replace(/[^a-zA-Z0-9]/g, '')
+        if (courseCode?.toLowerCase() === queryCode?.toLowerCase()) return true
 
         return false
     }
@@ -130,10 +142,15 @@ export default function PreRegistrationPage() {
                                     setSearchQuery(e.target.value)
                                     localStorage.setItem('preregistration-search', e.target.value)
                                     // Auto-expand searched courses
-                                    const newCourses = e.target.value
+                                    const searcQueries = e.target.value
                                         .split(',')
                                         .map(code => code.trim().toUpperCase())
                                         .filter(code => code.length > 0)
+                                    
+                                // Fuzzy search using matchCourse...
+                                const newCourses = processedCourses.filter(course => 
+                                    searcQueries.some(query => matchCourseCode(course.formalCode, query))
+                                ).map(course => course.formalCode)
                                     setExpandedCourses(newCourses)
                                 }}
                                 className="text-sm"
