@@ -13,7 +13,16 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Info } from 'lucide-react'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog'
+import { Info, X, Check } from 'lucide-react'
+
 type Section = {
     name: string
     availableSeats: number
@@ -77,12 +86,54 @@ export default function PreRegistrationPage() {
     const [selectedSections, setSelectedSections] = useState<{
         [key: string]: string
     }>({})
+    const [confirmationData, setConfirmationData] = useState<{
+        courseCode: string
+        sectionName: string
+        action: 'select' | 'cancel'
+    } | null>(null)
+    const [hoveredSection, setHoveredSection] = useState<{
+        courseCode: string
+        sectionName: string
+    } | null>(null)
 
     const handleSectionSelect = (courseCode: string, sectionName: string) => {
-        setSelectedSections((prev) => ({
-            ...prev,
-            [courseCode]: sectionName,
-        }))
+        if (selectedSections[courseCode] === sectionName) {
+            return
+        }
+        if (selectedSections[courseCode]) {
+            setConfirmationData({ courseCode, sectionName, action: 'select' })
+        } else {
+            setSelectedSections((prev) => ({
+                ...prev,
+                [courseCode]: sectionName,
+            }))
+        }
+    }
+
+    const handleConfirmChange = () => {
+        if (confirmationData) {
+            if (confirmationData.action === 'select') {
+                setSelectedSections((prev) => ({
+                    ...prev,
+                    [confirmationData.courseCode]: confirmationData.sectionName,
+                }))
+            } else if (confirmationData.action === 'cancel') {
+                setSelectedSections((prev) => {
+                    const newState = { ...prev }
+                    delete newState[confirmationData.courseCode]
+                    return newState
+                })
+            }
+            setConfirmationData(null)
+        }
+    }
+
+    const handleCancelSelection = (courseCode: string) => {
+        setConfirmationData({
+            courseCode,
+            sectionName: selectedSections[courseCode],
+            action: 'cancel',
+        })
     }
 
     const getBackgroundColor = (availableSeats: number, totalSeats: number) => {
@@ -105,14 +156,20 @@ export default function PreRegistrationPage() {
                 </CardHeader>
                 <CardContent>
                     <ScrollArea className="h-[600px]">
-                        <div className="overflow-x-auto max-w-[65vw] md:max-w-[85vw] lg:md:max-w-[65vw]">
+                        <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Course Code</TableHead>
-                                        <TableHead>Course Title</TableHead>
+                                        <TableHead className="w-[150px]">
+                                            Course Code
+                                        </TableHead>
+                                        <TableHead className="w-[300px]">
+                                            Course Title
+                                        </TableHead>
                                         <TableHead>Sections</TableHead>
-                                        <TableHead>Selected</TableHead>
+                                        <TableHead className="w-[150px]">
+                                            Selected
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -130,23 +187,69 @@ export default function PreRegistrationPage() {
                                                                 key={
                                                                     section.name
                                                                 }
-                                                                variant="outline"
+                                                                variant={
+                                                                    selectedSections[
+                                                                        course
+                                                                            .code
+                                                                    ] ===
+                                                                    section.name
+                                                                        ? 'default'
+                                                                        : 'outline'
+                                                                }
                                                                 size="sm"
-                                                                className={`${getBackgroundColor(
-                                                                    section.availableSeats,
-                                                                    section.totalSeats
-                                                                )} hover:${getBackgroundColor(
-                                                                    section.availableSeats,
-                                                                    section.totalSeats
-                                                                )}`}
+                                                                className={`
+                                                                ${
+                                                                    selectedSections[
+                                                                        course
+                                                                            .code
+                                                                    ] ===
+                                                                    section.name
+                                                                        ? 'bg-primary text-primary-foreground'
+                                                                        : getBackgroundColor(
+                                                                              section.availableSeats,
+                                                                              section.totalSeats
+                                                                          )
+                                                                }
+                                                                ${
+                                                                    hoveredSection?.courseCode ===
+                                                                        course.code &&
+                                                                    hoveredSection?.sectionName ===
+                                                                        section.name
+                                                                        ? 'bg-primary text-primary-foreground'
+                                                                        : ''
+                                                                }
+                                                                transition-colors duration-200
+                                                            `}
                                                                 onClick={() =>
                                                                     handleSectionSelect(
                                                                         course.code,
                                                                         section.name
                                                                     )
                                                                 }
+                                                                onMouseEnter={() =>
+                                                                    setHoveredSection(
+                                                                        {
+                                                                            courseCode:
+                                                                                course.code,
+                                                                            sectionName:
+                                                                                section.name,
+                                                                        }
+                                                                    )
+                                                                }
+                                                                onMouseLeave={() =>
+                                                                    setHoveredSection(
+                                                                        null
+                                                                    )
+                                                                }
                                                             >
-                                                                {section.name}
+                                                                {hoveredSection?.courseCode ===
+                                                                    course.code &&
+                                                                hoveredSection?.sectionName ===
+                                                                    section.name ? (
+                                                                    <Check className="mr-1 h-4 w-4" />
+                                                                ) : (
+                                                                    section.name
+                                                                )}
                                                                 <Badge
                                                                     variant="secondary"
                                                                     className="ml-2"
@@ -168,13 +271,26 @@ export default function PreRegistrationPage() {
                                                 {selectedSections[
                                                     course.code
                                                 ] ? (
-                                                    <Badge>
-                                                        {
-                                                            selectedSections[
-                                                                course.code
-                                                            ]
-                                                        }
-                                                    </Badge>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge>
+                                                            {
+                                                                selectedSections[
+                                                                    course.code
+                                                                ]
+                                                            }
+                                                        </Badge>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                handleCancelSelection(
+                                                                    course.code
+                                                                )
+                                                            }
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
                                                 ) : (
                                                     <span className="text-gray-400">
                                                         None
@@ -189,6 +305,35 @@ export default function PreRegistrationPage() {
                     </ScrollArea>
                 </CardContent>
             </Card>
+
+            <Dialog
+                open={!!confirmationData}
+                onOpenChange={() => setConfirmationData(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {confirmationData?.action === 'select'
+                                ? 'Confirm Section Selection'
+                                : 'Confirm Cancellation'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {confirmationData?.action === 'select'
+                                ? `Are you sure you want to select section ${confirmationData?.sectionName} for ${confirmationData?.courseCode}?`
+                                : `Are you sure you want to cancel your selection for ${confirmationData?.courseCode}?`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setConfirmationData(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmChange}>Confirm</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

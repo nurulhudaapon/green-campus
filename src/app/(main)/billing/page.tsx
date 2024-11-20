@@ -210,12 +210,6 @@ export default function BillingPage() {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className="mt-6 flex justify-center">
-                        <Button>
-                            <Calendar className="mr-2 h-4 w-4" /> Pay Next
-                            Installment
-                        </Button>
-                    </div>
                 </CardContent>
             </Card>
 
@@ -326,6 +320,14 @@ export default function BillingPage() {
                                                     >
                                                         {transaction.credit}{' '}
                                                         Payments
+                                                    </Badge>
+                                                )}
+                                                {transaction.remark && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="mr-1 text-center bg-yellow-100"
+                                                    >
+                                                        {transaction.remark}
                                                     </Badge>
                                                 )}
                                             </div>
