@@ -35,7 +35,8 @@ export default function PreRegistrationPage() {
         gcTime: 1,
         staleTime: 1000,
     })
-    const isPreAdvisingActive = true
+    const isPreAdvisingActive =
+        preAdvisingStatusQuery?.data?.isAdvisingActive === true
 
     const coursesQuery = useQuery({
         queryKey: ['courses'],
