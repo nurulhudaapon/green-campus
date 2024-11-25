@@ -28,60 +28,21 @@ export default function PreRegistrationPage() {
     } | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [expandedCourses, setExpandedCourses] = useState<string[]>([])
-    const [isPreAdvisingActive, setIsPreAdvisingActive] = useState<
-        boolean | null
-    >(null)
 
     const preAdvisingStatusQuery = useQuery({
         queryKey: ['preAdvisingStatus'],
         queryFn: getIsPreAdvisingActive,
+        gcTime: 1,
+        staleTime: 1000,
     })
+    const isPreAdvisingActive =
+        preAdvisingStatusQuery?.data?.isAdvisingActive === true
 
     const coursesQuery = useQuery({
         queryKey: ['courses'],
         queryFn: () => getCourses(),
-        enabled: isPreAdvisingActive === false,
+        enabled: isPreAdvisingActive,
     })
-    useEffect(() => {
-        if (preAdvisingStatusQuery.data !== undefined) {
-            setIsPreAdvisingActive(preAdvisingStatusQuery.data)
-        }
-    }, [preAdvisingStatusQuery.data])
-
-    if (preAdvisingStatusQuery.isLoading) {
-        return (
-            <div className="container mx-auto max-w-7xl p-4">
-                Checking pre-advising status...
-            </div>
-        )
-    }
-
-    if (preAdvisingStatusQuery.error) {
-        return (
-            <div className="container mx-auto max-w-7xl p-4">
-                Error checking pre-advising status:{' '}
-                {preAdvisingStatusQuery.error.message}
-            </div>
-        )
-    }
-
-    if (isPreAdvisingActive) {
-        return (
-            <div className="container mx-auto max-w-7xl p-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Pre-Registration Unavailable</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>
-                            Pre-advising is not currently active. Please check
-                            back later.
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
-        )
-    }
 
     // Initial mount
     useEffect(() => {
@@ -123,6 +84,41 @@ export default function PreRegistrationPage() {
             )
         }
     }, [coursesQuery.data])
+
+    if (preAdvisingStatusQuery.isLoading) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                Checking pre-advising status...
+            </div>
+        )
+    }
+
+    if (preAdvisingStatusQuery.error) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                Error checking pre-advising status:{' '}
+                {preAdvisingStatusQuery.error.message}
+            </div>
+        )
+    }
+
+    if (!isPreAdvisingActive) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pre-Registration Unavailable</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>
+                            Pre-advising is not currently active. Please check
+                            back later.
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     if (coursesQuery.isLoading) {
         return (
@@ -169,9 +165,9 @@ export default function PreRegistrationPage() {
                     return newState
                 })
             }
-            coursesQuery.refetch()
             setConfirmationData(null)
         }
+        coursesQuery.refetch()
     }
 
     const handleCancelSelection = (courseCode: string) => {
@@ -191,17 +187,19 @@ export default function PreRegistrationPage() {
 
     // Filter and sort courses based on search
     const processedCourses = coursesQuery.data?.slice() || []
-    processedCourses.sort((a, b) => {
-        const aMatches = searchedCourses.some((s) =>
-            matchCourseCode(a.formalCode, s)
-        )
-        const bMatches = searchedCourses.some((s) =>
-            matchCourseCode(b.formalCode, s)
-        )
-        if (aMatches && !bMatches) return -1
-        if (!aMatches && bMatches) return 1
-        return 0
-    })
+    processedCourses
+        .sort((a, b) => a.formalCode.localeCompare(b.formalCode))
+        .sort((a, b) => {
+            const aMatches = searchedCourses.some((s) =>
+                matchCourseCode(a.formalCode, s)
+            )
+            const bMatches = searchedCourses.some((s) =>
+                matchCourseCode(b.formalCode, s)
+            )
+            if (aMatches && !bMatches) return -1
+            if (!aMatches && bMatches) return 1
+            return 0
+        })
 
     const toggleCourseExpansion = (courseCode: string) => {
         setExpandedCourses((prev) =>
@@ -234,7 +232,6 @@ export default function PreRegistrationPage() {
     }
 
     function matchCourseCode(code: string = '', query: string = '') {
-        console.log({ code, query })
         // Exact Match
         if (code === query) return true
 

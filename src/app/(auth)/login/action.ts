@@ -65,7 +65,7 @@ async function login({
     studentId,
     password,
 }: LoginParams) {
-    console.log({ studentId })
+    // console.log({ studentId })
     const interestingCookies = cookies
         .filter((cookie: string) => cookie.includes('.AspNetCore.Antiforgery'))
         .map((cookie: string) => cookie.split(';')[0])

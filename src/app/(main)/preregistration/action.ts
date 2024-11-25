@@ -18,7 +18,7 @@ export async function getCourses() {
 
     try {
         const student = await getStudentInfo()
-        console.log({ student })
+        // console.log({ student })
         const coursesResponse = await await fetch(
             BASE_URL + '/api/AutoAssignCourse?studentId=' + student.studentID,
             {
@@ -71,14 +71,10 @@ export async function getIsPreAdvisingActive() {
         const data = await response.json()
         const status = data[0]
 
-        if (status?.isAdvisingActive !== undefined) {
-            return status.isAdvisingActive
-        }
+        return status
     } catch (error) {
         console.error('Error checking pre-advising status:', error)
     }
-
-    return false
 }
 
 export async function getSections(course: Course): Promise<Section[]> {

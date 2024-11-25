@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
     Course,
@@ -29,6 +29,7 @@ export default function SectionsCell({
     onSectionSelect,
     onCancelSelection,
 }: SectionsCellProps) {
+    const queryClient = useQueryClient()
     const [hoveredSection, setHoveredSection] = useState<string | null>(null)
 
     const sectionsQuery = useQuery({
@@ -44,7 +45,9 @@ export default function SectionsCell({
             section: Section
             course: Course
         }) => {
+            // console.log({section, course})
             const res = await registerSection(section, course)
+            await queryClient.invalidateQueries({ queryKey: ['courses'] })
             if (res) return true
             else
                 throw new Error(
@@ -68,6 +71,7 @@ export default function SectionsCell({
             course: Course
         }) => {
             const res = await deregisterSection(section, course)
+            await queryClient.invalidateQueries({ queryKey: ['courses'] })
             if (res) return true
             else
                 throw new Error(
