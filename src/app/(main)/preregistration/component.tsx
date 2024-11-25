@@ -127,170 +127,178 @@ export default function SectionsCell({
     }
 
     return (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-col gap-0.5">
             {Object.entries(groupedSections ?? {}).map(
                 ([batchId, sections]) => (
                     <div
                         key={batchId}
-                        className="flex flex-wrap items-center gap-1"
+                        className={`
+                            flex flex-col gap-0.5
+                            ${batchId ? 'bg-muted/30 p-2 rounded-md' : 'p-1'}
+                        `}
                     >
                         {batchId && (
-                            <span className="text-xs text-muted-foreground outline outline-1 outline-muted-foreground rounded-md px-1">
-                                Batch: {batchId}
-                            </span>
+                            <div className="flex items-center mb-1">
+                                <span className="text-xs font-medium bg-background border px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
+                                    <span className="text-muted-foreground">Batch</span>
+                                    <span>{batchId}</span>
+                                </span>
+                            </div>
                         )}
-                        {sections
-                            .sort((a, b) =>
-                                a.sectionName.localeCompare(b.sectionName, undefined, {numeric: true})
-                            )
-                            .map((section) => {
-                                const isSelected =
-                                    selectedSections[course.formalCode] ===
-                                        section.sectionName ||
-                                    course.sectionName === section.sectionName
-                                const isHovered =
-                                    hoveredSection === section.sectionName
-                                const isDropped =
-                                    section.sectionName.includes('(DROPPED)')
-                                const isFull =
-                                    section.capacity - section.occupied === 0 &&
-                                    !isSelected
+                        <div className="flex flex-wrap gap-1">
+                            {sections
+                                .sort((a, b) =>
+                                    a.sectionName.localeCompare(b.sectionName, undefined, {numeric: true})
+                                )
+                                .map((section) => {
+                                    const isSelected =
+                                        selectedSections[course.formalCode] ===
+                                            section.sectionName ||
+                                        course.sectionName === section.sectionName
+                                    const isHovered =
+                                        hoveredSection === section.sectionName
+                                    const isDropped =
+                                        section.sectionName.includes('(DROPPED)')
+                                    const isFull =
+                                        section.capacity - section.occupied === 0 &&
+                                        !isSelected
 
-                                return (
-                                    <Popover
-                                        key={section.acaCal_SectionID}
-                                        open={isHovered}
-                                    >
-                                        <PopoverTrigger asChild>
-                                            <div
-                                                onMouseEnter={() =>
-                                                    setHoveredSection(
-                                                        section.sectionName
-                                                    )
-                                                }
-                                                onMouseLeave={() =>
-                                                    setHoveredSection(null)
-                                                }
-                                            >
-                                                <Button
-                                                    disabled={
-                                                        isDropped || isFull
-                                                    }
-                                                    variant={
-                                                        isSelected
-                                                            ? 'default'
-                                                            : 'outline'
-                                                    }
-                                                    size="sm"
-                                                    className={`
-                                                    h-6 px-2 text-xs mx-0.5
-                                                    ${
-                                                        isSelected
-                                                            ? 'bg-primary text-primary-foreground'
-                                                            : getBackgroundColor(
-                                                                  section.capacity -
-                                                                      section.occupied,
-                                                                  section.capacity
-                                                              )
-                                                    }
-                                                    ${sectionRegistrationMutation.isPending ? 'opacity-50' : ''}
-                                                    transition-colors duration-200
-                                                `}
-                                                    onClick={() => {
-                                                        if (
-                                                            isSelected &&
-                                                            isHovered
-                                                        ) {
-                                                            handleDesectionSelect(
-                                                                course,
-                                                                section
-                                                            )
-                                                        } else {
-                                                            handleSectionSelect(
-                                                                course,
-                                                                section
-                                                            )
-                                                        }
-                                                    }}
-                                                >
-                                                    {isSelected &&
-                                                    !sectionRegistrationMutation.isPending &&
-                                                    isHovered ? (
-                                                        <div className="flex items-center justify-center gap-1 w-[52px] text-center">
-                                                            Remove
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1 w-[52px] justify-between">
-                                                            <span className="font-bold">
-                                                                {formatSectionName(
-                                                                    section.sectionName
-                                                                )}
-                                                            </span>
-                                                            <span className="opacity-60">
-                                                                {section.capacity -
-                                                                    section.occupied}
-                                                                /
-                                                                {
-                                                                    section.capacity
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                            className="w-90 p-2"
-                                            side="top"
-                                            align="start"
+                                    return (
+                                        <Popover
+                                            key={section.acaCal_SectionID}
+                                            open={isHovered}
                                         >
-                                            <div className="space-y-2">
-                                                <div className="font-medium">
-                                                    {course.courseTitle} -
-                                                    Section{' '}
-                                                    {formatSectionName(
-                                                        section.sectionName
-                                                    )}
+                                            <PopoverTrigger asChild>
+                                                <div
+                                                    onMouseEnter={() =>
+                                                        setHoveredSection(
+                                                            section.sectionName
+                                                        )
+                                                    }
+                                                    onMouseLeave={() =>
+                                                        setHoveredSection(null)
+                                                    }
+                                                >
+                                                    <Button
+                                                        disabled={
+                                                            isDropped || isFull
+                                                        }
+                                                        variant={
+                                                            isSelected
+                                                                ? 'default'
+                                                                : 'outline'
+                                                        }
+                                                        size="sm"
+                                                        className={`
+                                                        h-6 px-2 text-xs 
+                                                        ${
+                                                            isSelected
+                                                                ? 'bg-primary text-primary-foreground'
+                                                                : getBackgroundColor(
+                                                                      section.capacity -
+                                                                          section.occupied,
+                                                                      section.capacity
+                                                                  )
+                                                        }
+                                                        ${sectionRegistrationMutation.isPending ? 'opacity-50' : ''}
+                                                        transition-colors duration-200
+                                                    `}
+                                                        onClick={() => {
+                                                            if (
+                                                                isSelected &&
+                                                                isHovered
+                                                            ) {
+                                                                handleDesectionSelect(
+                                                                    course,
+                                                                    section
+                                                                )
+                                                            } else {
+                                                                handleSectionSelect(
+                                                                    course,
+                                                                    section
+                                                                )
+                                                            }
+                                                        }}
+                                                    >
+                                                        {isSelected &&
+                                                        !sectionRegistrationMutation.isPending &&
+                                                        isHovered ? (
+                                                            <div className="flex items-center justify-center gap-1 w-[52px] text-center">
+                                                                Remove
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-1 w-[52px] justify-between">
+                                                                <span className="font-bold">
+                                                                    {formatSectionName(
+                                                                        section.sectionName
+                                                                    )}
+                                                                </span>
+                                                                <span className="opacity-60">
+                                                                    {section.capacity -
+                                                                        section.occupied}
+                                                                    /
+                                                                    {
+                                                                        section.capacity
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </Button>
                                                 </div>
-                                                <div className="text-sm space-y-1">
-                                                    <div>
-                                                        <span className="text-muted-foreground">
-                                                            Schedule:
-                                                        </span>{' '}
-                                                        {formatSchedule(
-                                                            section
+                                            </PopoverTrigger>
+                                            <PopoverContent
+                                                className="w-90 p-2"
+                                                side="top"
+                                                align="start"
+                                            >
+                                                <div className="space-y-2">
+                                                    <div className="font-medium">
+                                                        {course.courseTitle} -
+                                                        Section{' '}
+                                                        {formatSectionName(
+                                                            section.sectionName
                                                         )}
                                                     </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">
-                                                            Instructor:
-                                                        </span>{' '}
-                                                        {section.faculty_1 ||
-                                                            section.faculty_2 ||
-                                                            'TBA'}
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">
-                                                            Room:
-                                                        </span>{' '}
-                                                        {section.roomNo_1 ||
-                                                            section.roomNo_2 ||
-                                                            'TBA'}
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">
-                                                            Available Seats:
-                                                        </span>{' '}
-                                                        {section.capacity -
-                                                            section.occupied}{' '}
-                                                        of {section.capacity}
+                                                    <div className="text-sm space-y-1">
+                                                        <div>
+                                                            <span className="text-muted-foreground">
+                                                                Schedule:
+                                                            </span>{' '}
+                                                            {formatSchedule(
+                                                                section
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-muted-foreground">
+                                                                Instructor:
+                                                            </span>{' '}
+                                                            {section.faculty_1 ||
+                                                                section.faculty_2 ||
+                                                                'TBA'}
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-muted-foreground">
+                                                                Room:
+                                                            </span>{' '}
+                                                            {section.roomNo_1 ||
+                                                                section.roomNo_2 ||
+                                                                'TBA'}
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-muted-foreground">
+                                                                Available Seats:
+                                                            </span>{' '}
+                                                            {section.capacity -
+                                                                section.occupied}{' '}
+                                                            of {section.capacity}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                )
-                            })}
+                                            </PopoverContent>
+                                        </Popover>
+                                    )
+                                })}
+                        </div>
                     </div>
                 )
             )}
