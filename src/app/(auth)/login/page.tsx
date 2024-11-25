@@ -20,7 +20,10 @@ import { getAuthToken } from './action'
 import { logout } from '@/app/action'
 
 export default function LoginPage() {
-    const [formActionState, formAction, isPending] = useActionState(getAuthToken, null)
+    const [formActionState, formAction, isPending] = useActionState(
+        getAuthToken,
+        null
+    )
     const [studentId, setStudentId] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')

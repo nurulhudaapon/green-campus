@@ -11,7 +11,15 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Calendar as CalendarIcon, Clock, MapPin, Users, Download, List, Table as TableIcon } from 'lucide-react'
+import {
+    Calendar as CalendarIcon,
+    Clock,
+    MapPin,
+    Users,
+    Download,
+    List,
+    Table as TableIcon,
+} from 'lucide-react'
 import { getClassRoutine } from './action'
 import { generateICSFile } from '@/lib/calendar'
 import { Calendar } from '@/components/ui/calendar'
@@ -27,13 +35,13 @@ type ClassSchedule = {
 
 const normalizeDay = (day: string) => {
     const dayMap: { [key: string]: string } = {
-        'Mon': 'Monday',
-        'Tue': 'Tuesday',
-        'Wed': 'Wednesday',
-        'Thu': 'Thursday',
-        'Fri': 'Friday',
-        'Sat': 'Saturday',
-        'Sun': 'Sunday'
+        Mon: 'Monday',
+        Tue: 'Tuesday',
+        Wed: 'Wednesday',
+        Thu: 'Thursday',
+        Fri: 'Friday',
+        Sat: 'Saturday',
+        Sun: 'Sunday',
     }
     return dayMap[day] || day
 }
@@ -61,27 +69,37 @@ const sortTimeSlots = (timeSlots: string[]) => {
     })
 }
 
-const sortedDayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const sortedDayOrder = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+]
 
 const dayMap = {
-    'Mon': 'Monday',
-    'Tue': 'Tuesday',
-    'Wed': 'Wednesday',
-    'Thu': 'Thursday',
-    'Fri': 'Friday',
-    'Sat': 'Saturday',
-    'Sun': 'Sunday'
+    Mon: 'Monday',
+    Tue: 'Tuesday',
+    Wed: 'Wednesday',
+    Thu: 'Thursday',
+    Fri: 'Friday',
+    Sat: 'Saturday',
+    Sun: 'Sunday',
 }
 
 export default function ClassRoutinePage() {
     const [classSchedules, setClassRoutine] = useState<ClassSchedule[]>([])
-    const [viewMode, setViewMode] = useState<'list' | 'schedule' | 'calendar'>('list')
+    const [viewMode, setViewMode] = useState<'list' | 'schedule' | 'calendar'>(
+        'list'
+    )
     const [date, setDate] = useState<Date>(new Date())
 
     useEffect(() => {
         getClassRoutine().then((data) => {
             console.log('Fetched class schedules:', data)
-        
+
             setClassRoutine(data)
         })
     }, [])
@@ -90,11 +108,15 @@ export default function ClassRoutinePage() {
     const days = [...new Set(allDays)]
     const allTimeSlots = classSchedules.map((cls) => cls.time)
     const timeSlots = [...new Set(allTimeSlots)]
-console.log({classSchedules})
+    console.log({ classSchedules })
     const getClassForTimeSlot = (day: string, timeSlot: string) => {
-        const shortDay = Object.entries(dayMap).find(([_, long]) => long === day)?.[0]
+        const shortDay = Object.entries(dayMap).find(
+            ([_, long]) => long === day
+        )?.[0]
         return classSchedules.find(
-            (cls) => cls.day === shortDay && normalizeTime(cls.time) === normalizeTime(timeSlot)
+            (cls) =>
+                cls.day === shortDay &&
+                normalizeTime(cls.time) === normalizeTime(timeSlot)
         )
     }
 
@@ -113,17 +135,21 @@ console.log({classSchedules})
 
     const getClassesForDate = (date: Date) => {
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
-        const shortDay = Object.entries(dayMap).find(([_, long]) => long === dayName)?.[0]
-        return classSchedules.filter(cls => cls.day === shortDay)
+        const shortDay = Object.entries(dayMap).find(
+            ([_, long]) => long === dayName
+        )?.[0]
+        return classSchedules.filter((cls) => cls.day === shortDay)
     }
 
     const sortedTimeSlots = sortTimeSlots(timeSlots)
-    const sortedDays = sortedDayOrder.filter(day => days.includes(day))
+    const sortedDays = sortedDayOrder.filter((day) => days.includes(day))
 
     return (
         <div className="container mx-auto max-w-7xl p-4">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-3xl font-bold">Class Routine</h1>
+                <h1 className="text-3xl font-bold text-center lg:text-left">
+                    Class Routine
+                </h1>
                 <div className="flex flex-col gap-2 lg:flex-row lg:space-x-2">
                     <Button
                         variant="outline"
@@ -133,9 +159,11 @@ console.log({classSchedules})
                         <Download className="mr-2 h-4 w-4" />
                         Download Calendar
                     </Button>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                         <Button
-                            variant={viewMode === 'list' ? 'default' : 'outline'}
+                            variant={
+                                viewMode === 'list' ? 'default' : 'outline'
+                            }
                             onClick={() => setViewMode('list')}
                             className="flex-1 sm:flex-none"
                         >
@@ -143,7 +171,9 @@ console.log({classSchedules})
                             List
                         </Button>
                         <Button
-                            variant={viewMode === 'schedule' ? 'default' : 'outline'}
+                            variant={
+                                viewMode === 'schedule' ? 'default' : 'outline'
+                            }
                             onClick={() => setViewMode('schedule')}
                             className="flex-1 sm:flex-none"
                         >
@@ -151,7 +181,9 @@ console.log({classSchedules})
                             Schedule
                         </Button>
                         <Button
-                            variant={viewMode === 'calendar' ? 'default' : 'outline'}
+                            variant={
+                                viewMode === 'calendar' ? 'default' : 'outline'
+                            }
                             onClick={() => setViewMode('calendar')}
                             className="flex-1 sm:flex-none"
                         >
@@ -194,13 +226,18 @@ console.log({classSchedules})
                 </div>
             ) : viewMode === 'schedule' ? (
                 <div className="rounded-lg border bg-card">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto max-w-[80vw] md:max-w-[90vw] lg:md:max-w-[70vw]">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-muted/50">
-                                    <TableHead className="w-[150px]">Day / Time</TableHead>
+                                    <TableHead className="w-[150px]">
+                                        Day / Time
+                                    </TableHead>
                                     {sortedTimeSlots.map((timeSlot) => (
-                                        <TableHead key={timeSlot} className="min-w-[200px] text-center">
+                                        <TableHead
+                                            key={timeSlot}
+                                            className="min-w-[200px] text-center"
+                                        >
                                             {timeSlot}
                                         </TableHead>
                                     ))}
@@ -213,10 +250,13 @@ console.log({classSchedules})
                                             {day}
                                         </TableCell>
                                         {sortedTimeSlots.map((timeSlot) => {
-                                            const cls = getClassForTimeSlot(day, timeSlot)
+                                            const cls = getClassForTimeSlot(
+                                                day,
+                                                timeSlot
+                                            )
                                             return (
-                                                <TableCell 
-                                                    key={timeSlot} 
+                                                <TableCell
+                                                    key={timeSlot}
                                                     className={`text-center ${cls ? 'p-0' : ''}`}
                                                 >
                                                     {cls && (
@@ -224,16 +264,22 @@ console.log({classSchedules})
                                                             <CardContent className="p-3">
                                                                 <div className="space-y-2">
                                                                     <div className="font-medium text-primary">
-                                                                        {cls.courseTitle}
+                                                                        {
+                                                                            cls.courseTitle
+                                                                        }
                                                                     </div>
                                                                     <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
                                                                         <div className="flex items-center gap-1">
                                                                             <MapPin className="h-3 w-3" />
-                                                                            {cls.room}
+                                                                            {
+                                                                                cls.room
+                                                                            }
                                                                         </div>
                                                                         <div className="flex items-center gap-1">
                                                                             <Users className="h-3 w-3" />
-                                                                            {cls.section}
+                                                                            {
+                                                                                cls.section
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -250,46 +296,59 @@ console.log({classSchedules})
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-col md:flex-row gap-8">
-                    <div className="md:w-1/2">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={(date) => date && setDate(date)}
-                            className="rounded-md border"
-                        />
-                    </div>
-                    <div className="md:w-1/2">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Classes on {date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </h2>
-                        <div className="grid gap-4">
-                            {getClassesForDate(date).map((cls, index) => (
-                                <Card key={index}>
-                                    <CardHeader>
-                                        <CardTitle>{cls.courseTitle}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center space-x-2">
-                                                <Clock className="h-4 w-4" />
-                                                <span>{cls.time}</span>
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-4">
+                        Classes on{' '}
+                        {date.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        })}
+                    </h2>
+
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="md:w-1/3 flex items-start justify-center">
+                            <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={(date) => date && setDate(date)}
+                                className="rounded-md border"
+                            />
+                        </div>
+                        <div className="md:w-2/3">
+                            <div className="grid gap-4">
+                                {getClassesForDate(date).map((cls, index) => (
+                                    <Card key={index}>
+                                        <CardHeader>
+                                            <CardTitle className="text-start md:text-center">
+                                                {cls.courseTitle}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-2 flex flex-col gap-2 md:flex-row md:space-y-0 md:justify-center">
+                                                <div className="flex items-center space-x-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    <span>{cls.time}</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <MapPin className="h-4 w-4" />
+                                                    <span>{cls.room}</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Users className="h-4 w-4" />
+                                                    <span>{cls.section}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center space-x-2">
-                                                <MapPin className="h-4 w-4" />
-                                                <span>{cls.room}</span>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Users className="h-4 w-4" />
-                                                <span>{cls.section}</span>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                            {getClassesForDate(date).length === 0 && (
-                                <p className="text-muted-foreground">No classes scheduled for this day.</p>
-                            )}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                                {getClassesForDate(date).length === 0 && (
+                                    <p className="text-muted-foreground">
+                                        No classes scheduled for this day.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

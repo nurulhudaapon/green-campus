@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
 import { Info } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { getCourses } from './action'
+import { getCourses, getIsPreAdvisingActive } from './action'
 import SectionsCell from './component'
 import {
     Dialog,
@@ -28,11 +28,60 @@ export default function PreRegistrationPage() {
     } | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [expandedCourses, setExpandedCourses] = useState<string[]>([])
+    const [isPreAdvisingActive, setIsPreAdvisingActive] = useState<
+        boolean | null
+    >(null)
+
+    const preAdvisingStatusQuery = useQuery({
+        queryKey: ['preAdvisingStatus'],
+        queryFn: getIsPreAdvisingActive,
+    })
 
     const coursesQuery = useQuery({
         queryKey: ['courses'],
         queryFn: () => getCourses(),
+        enabled: isPreAdvisingActive === false,
     })
+    useEffect(() => {
+        if (preAdvisingStatusQuery.data !== undefined) {
+            setIsPreAdvisingActive(preAdvisingStatusQuery.data)
+        }
+    }, [preAdvisingStatusQuery.data])
+
+    if (preAdvisingStatusQuery.isLoading) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                Checking pre-advising status...
+            </div>
+        )
+    }
+
+    if (preAdvisingStatusQuery.error) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                Error checking pre-advising status:{' '}
+                {preAdvisingStatusQuery.error.message}
+            </div>
+        )
+    }
+
+    if (isPreAdvisingActive) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pre-Registration Unavailable</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>
+                            Pre-advising is not currently active. Please check
+                            back later.
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     // Initial mount
     useEffect(() => {
@@ -56,7 +105,7 @@ export default function PreRegistrationPage() {
                     )
                 )
                 .map((course) => course.formalCode)
-            
+
             setExpandedCourses(matchingCourses)
         }
     }, [coursesQuery.data])
@@ -165,7 +214,7 @@ export default function PreRegistrationPage() {
     function handleSearchChange(value: string) {
         setSearchQuery(value)
         localStorage.setItem('preregistration-search', value)
-        
+
         if (!coursesQuery.data) return
 
         const searchQueries = value
@@ -180,7 +229,7 @@ export default function PreRegistrationPage() {
                 )
             )
             .map((course) => course.formalCode)
-        
+
         setExpandedCourses(matchingCourses)
     }
 
@@ -207,7 +256,9 @@ export default function PreRegistrationPage() {
                 <h1 className="text-xl font-bold">Pre-Registration</h1>
                 <h5 className="flex items-center gap-1 text-xs text-gray-500">
                     <Info className="h-3 w-3" />
-                    When pre-registration is enabled you will see current courses, for the time being we are showing last semester's courses
+                    When pre-registration is enabled you will see current
+                    courses, for the time being we are showing last semester's
+                    courses
                 </h5>
             </div>
             <div className="w-full mb-2">

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { getStudentInfo } from '../profile/action'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import exp from 'constants'
 
 const BASE_URL = 'https://studentportal.green.edu.bd'
 
@@ -47,6 +48,39 @@ export async function getCourses() {
     return courses
 }
 
+export async function getIsPreAdvisingActive() {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+        redirect('/login')
+    }
+
+    try {
+        const response = await fetch(BASE_URL + '/api/StudentStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                cookie: token,
+            },
+        })
+
+        if (response.url.includes('/Account/login')) {
+            redirect('/login?message=Session expired')
+        }
+
+        const data = await response.json()
+        const status = data[0]
+
+        if (status?.isAdvisingActive !== undefined) {
+            return status.isAdvisingActive
+        }
+    } catch (error) {
+        console.error('Error checking pre-advising status:', error)
+    }
+
+    return false
+}
+
 export async function getSections(course: Course): Promise<Section[]> {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth')?.value
@@ -75,7 +109,7 @@ export async function getSections(course: Course): Promise<Section[]> {
         }
 
         sections = await sectionsResponse.json()
-        console.log({ sections })
+        // console.log({ sections })
     } catch (error) {
         console.error(error)
     }
@@ -103,6 +137,50 @@ export async function getSections(course: Course): Promise<Section[]> {
     return sections
 }
 
+export async function deregisterSection(section: Section, course: Course) {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+        redirect('/login')
+    }
+
+    try {
+        const removeSectionParam = new URLSearchParams({
+            regWorkSheetId: course.regWorksheetId.toString(),
+            sectionId: section.acaCal_SectionID.toString(),
+            sectionName: section.sectionName,
+            studentId: course.studentID.toString(),
+            courseCode: course.formalCode,
+            courseId: course.courseID.toString(),
+            programId: '2',
+            versionId: '1',
+            url: 'https://studentportal.green.edu.bd/Student/StudentSectionSelection',
+        })
+
+        const removeSectionRes = await (
+            await fetch(
+                'https://studentportal.green.edu.bd/api/SectionRemove?' +
+                    removeSectionParam.toString(),
+                {
+                    method: 'POST',
+                    headers: { cookie: token },
+                }
+            )
+        ).text()
+        // Randomely return true or false
+        // const removeSectionRes = Math.random() < 0.5
+        // return removeSectionRes
+
+        revalidatePath('/preregistration')
+        // await new Promise((resolve) => setTimeout(resolve, 1000))
+        if (removeSectionRes.includes('1')) return true
+    } catch (error) {
+        console.error(error)
+    }
+
+    return false
+}
+
 export async function registerSection(section: Section, course: Course) {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth')?.value
@@ -123,6 +201,14 @@ export async function registerSection(section: Section, course: Course) {
             url: 'https://studentportal.green.edu.bd/Student/StudentSectionSelection',
         })
 
+        const preSectionId = course.acaCal_SectionID?.toString()
+        if (preSectionId) {
+            await deregisterSection(section, course)
+            selectSectionParam.append('preSectionId', preSectionId)
+        }
+        console.log({ course })
+        // params.append("preSectionId", "12506");
+
         const selectSectionRes = await (
             await fetch(
                 'https://studentportal.green.edu.bd/api/SectionTake?' +
@@ -139,7 +225,8 @@ export async function registerSection(section: Section, course: Course) {
 
         revalidatePath('/preregistration')
         // await new Promise((resolve) => setTimeout(resolve, 1000))
-        if (selectSectionRes == '1') return true
+        console.log({ selectSectionRes })
+        if (selectSectionRes.includes('1')) return true
     } catch (error) {
         console.error(error)
     }
