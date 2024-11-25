@@ -44,12 +44,12 @@ export default function PreRegistrationPage() {
         enabled: isPreAdvisingActive,
     })
 
+    const existingSearch =
+        typeof localStorage !== 'undefined'
+            ? localStorage.getItem('preregistration-search')
+            : ''
     // Initial mount
     useEffect(() => {
-        const existingSearch =
-            typeof localStorage !== 'undefined'
-                ? localStorage.getItem('preregistration-search')
-                : ''
         if (existingSearch && coursesQuery.data) {
             setSearchQuery(existingSearch)
             // Process search queries
@@ -69,7 +69,7 @@ export default function PreRegistrationPage() {
 
             setExpandedCourses(matchingCourses)
         }
-    }, [coursesQuery.data])
+    }, [coursesQuery.data, existingSearch])
 
     useEffect(() => {
         if (coursesQuery.data) {
@@ -254,10 +254,10 @@ export default function PreRegistrationPage() {
                     />
                     <h5 className="flex items-center gap-1 text-xs text-gray-500">
                         <Info className="h-3 w-3" />
-                        You can write your course search in  advance now and the search
-                        will be automatically applied when pre-registration is
-                        enabled so that you can see the courses you are
-                        interested in on the top and expanded.
+                        You can write your course search in advance now and the
+                        search will be automatically applied when
+                        pre-registration is enabled so that you can see the
+                        courses you are interested in on the top and expanded.
                     </h5>
                 </div>
             </div>
