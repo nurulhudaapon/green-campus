@@ -14,13 +14,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { getAuthToken } from './action'
 import { logout } from '@/app/action'
 
 export default function LoginPage() {
-    const [formActionState, formAction] = useActionState(getAuthToken, null)
+    const [formActionState, formAction, isPending] = useActionState(getAuthToken, null)
     const [studentId, setStudentId] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -53,8 +53,7 @@ export default function LoginPage() {
                         Login to GUB Portal
                     </CardTitle>
                     <CardDescription className="text-center text-sm sm:text-base">
-                        Enter your Student ID and password to access your
-                        account
+                        Redesigned UI/UX with existing server/database!
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -71,6 +70,7 @@ export default function LoginPage() {
                                         setStudentId(e.target.value)
                                     }
                                     required
+                                    disabled={isPending}
                                     className="h-9 sm:h-10"
                                 />
                             </div>
@@ -86,6 +86,7 @@ export default function LoginPage() {
                                         setPassword(e.target.value)
                                     }
                                     required
+                                    disabled={isPending}
                                     className="h-9 sm:h-10"
                                 />
                             </div>
@@ -95,9 +96,17 @@ export default function LoginPage() {
                         </Suspense>
                         <Button
                             type="submit"
+                            disabled={isPending}
                             className="mt-3 sm:mt-4 w-full h-9 sm:h-10"
                         >
-                            Login
+                            {isPending ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </>
+                            ) : (
+                                'Login'
+                            )}
                         </Button>
                     </form>
                 </CardContent>

@@ -40,11 +40,26 @@ export default function PreRegistrationPage() {
             typeof localStorage !== 'undefined'
                 ? localStorage.getItem('preregistration-search')
                 : ''
-        if (existingSearch) {
+        if (existingSearch && coursesQuery.data) {
             setSearchQuery(existingSearch)
-            handleSearchChange(existingSearch)
+            // Process search queries
+            const searchQueries = existingSearch
+                .split(',')
+                .map((code) => code.trim().toUpperCase())
+                .filter((code) => code.length > 0)
+
+            // Find matching courses and expand them
+            const matchingCourses = coursesQuery.data
+                .filter((course) =>
+                    searchQueries.some((query) =>
+                        matchCourseCode(course.formalCode, query)
+                    )
+                )
+                .map((course) => course.formalCode)
+            
+            setExpandedCourses(matchingCourses)
         }
-    }, [])
+    }, [coursesQuery.data])
 
     useEffect(() => {
         if (coursesQuery.data) {
@@ -128,8 +143,12 @@ export default function PreRegistrationPage() {
     // Filter and sort courses based on search
     const processedCourses = coursesQuery.data?.slice() || []
     processedCourses.sort((a, b) => {
-        const aMatches = searchedCourses.includes(a.formalCode)
-        const bMatches = searchedCourses.includes(b.formalCode)
+        const aMatches = searchedCourses.some((s) =>
+            matchCourseCode(a.formalCode, s)
+        )
+        const bMatches = searchedCourses.some((s) =>
+            matchCourseCode(b.formalCode, s)
+        )
         if (aMatches && !bMatches) return -1
         if (!aMatches && bMatches) return 1
         return 0
@@ -146,21 +165,23 @@ export default function PreRegistrationPage() {
     function handleSearchChange(value: string) {
         setSearchQuery(value)
         localStorage.setItem('preregistration-search', value)
-        // Auto-expand searched courses
-        const searcQueries = value
+        
+        if (!coursesQuery.data) return
+
+        const searchQueries = value
             .split(',')
             .map((code) => code.trim().toUpperCase())
             .filter((code) => code.length > 0)
 
-        // Fuzzy search using matchCourse...
-        const newCourses = processedCourses
+        const matchingCourses = coursesQuery.data
             .filter((course) =>
-                searcQueries.some((query) =>
+                searchQueries.some((query) =>
                     matchCourseCode(course.formalCode, query)
                 )
             )
             .map((course) => course.formalCode)
-        setExpandedCourses(newCourses)
+        
+        setExpandedCourses(matchingCourses)
     }
 
     function matchCourseCode(code: string = '', query: string = '') {

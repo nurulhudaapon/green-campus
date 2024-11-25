@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getResult, ResultData } from './action'
+import { BookOpen, GraduationCap, Award, LineChart } from 'lucide-react'
 
 export default function ResultHistoryPage() {
     const [searchTerm, setSearchTerm] = useState('')
@@ -42,9 +43,95 @@ export default function ResultHistoryPage() {
             )
         ) ?? []
 
+    // Calculate statistics
+    const calculateStats = () => {
+        if (!results?.courses) return { totalCredits: 0, totalCourses: 0, avgGPA: 0, currentCGPA: 0 }
+        
+        const totalCredits = results.courses.reduce((sum, course) => sum + course.credit, 0)
+        const remainingCredits = 144 - totalCredits
+        const totalCourses = results.courses.length
+        const avgGPA = results.courses.reduce((sum, course) => sum + course.point, 0) / totalCourses
+        const currentCGPA = results.semesters[results.semesters.length - 1]?.cgpaTranscript || 0
+
+        return {
+            totalCredits,
+            remainingCredits,
+            totalCourses,
+            avgGPA,
+            currentCGPA
+        }
+    }
+
+    const stats = calculateStats()
+
     return (
         <div className="container mx-auto max-w-7xl p-4">
             <h1 className="mb-6 text-3xl font-bold">Result History</h1>
+
+            {/* Add Statistics Cards */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Total Credits
+                        </CardTitle>
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.totalCredits}</div>
+                        <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-xs text-muted-foreground">{stats.remainingCredits} remaining</p>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                            <div 
+                                className="bg-primary h-1.5 rounded-full" 
+                                style={{ width: `${(stats.totalCredits / 144) * 100}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Out of 144 credits</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Current CGPA
+                        </CardTitle>
+                        <Award className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.currentCGPA.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">Latest Transcript CGPA</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Total Courses
+                        </CardTitle>
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.totalCourses}</div>
+                        <p className="text-xs text-muted-foreground">Courses Completed</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Average GPA
+                        </CardTitle>
+                        <LineChart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.avgGPA.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">Course Average</p>
+                    </CardContent>
+                </Card>
+            </div>
 
             <Tabs defaultValue="gpa" className="space-y-4">
                 <TabsList>

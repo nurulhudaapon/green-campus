@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { getStudentInfo } from '../profile/action'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 const BASE_URL = 'https://studentportal.green.edu.bd'
 
@@ -17,22 +18,23 @@ export async function getCourses() {
     try {
         const student = await getStudentInfo()
         console.log({ student })
-        const coursesResponse = await (
-            await fetch(
-                BASE_URL +
-                    '/api/AutoAssignCourse?studentId=' +
-                    student.studentID,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        cookie: token,
-                    },
-                }
-            )
-        ).json()
+        const coursesResponse = await await fetch(
+            BASE_URL + '/api/AutoAssignCourse?studentId=' + student.studentID,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    cookie: token,
+                },
+            }
+        )
 
-        courses = coursesResponse
+        if (coursesResponse.url.includes('/Account/login')) {
+            // cookieStore.delete("auth"); /// TODO: Probably a next.js bug [ Server ] Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+            redirect('/login?message=Session expired')
+        }
+
+        courses = await coursesResponse.json()
     } catch (error) {
         console.error(error)
     }
@@ -61,13 +63,17 @@ export async function getSections(course: Course): Promise<Section[]> {
             versionId: '1',
         })
 
-        const sectionsResponse = 
-            await fetch(
-                'https://studentportal.green.edu.bd/api/CourseSectionInfo?' +
-                    sectionParam.toString(),
-                { method: 'POST', headers: { cookie: token } }
-            )
-        console.log({ sectionsResponse })
+        const sectionsResponse = await fetch(
+            'https://studentportal.green.edu.bd/api/CourseSectionInfo?' +
+                sectionParam.toString(),
+            { method: 'POST', headers: { cookie: token } }
+        )
+
+        if (sectionsResponse.url.includes('/Account/login')) {
+            // cookieStore.delete("auth"); /// TODO: Probably a next.js bug [ Server ] Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+            redirect('/login?message=Session expired')
+        }
+
         sections = await sectionsResponse.json()
         console.log({ sections })
     } catch (error) {
@@ -131,6 +137,7 @@ export async function registerSection(section: Section, course: Course) {
         // const selectSectionRes = Math.random() < 0.5
         // return selectSectionRes
 
+        revalidatePath('/preregistration')
         // await new Promise((resolve) => setTimeout(resolve, 1000))
         if (selectSectionRes == '1') return true
     } catch (error) {
