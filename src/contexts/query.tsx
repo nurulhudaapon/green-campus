@@ -27,7 +27,7 @@ export function QueryClientProvider({
             client={queryClient}
             persistOptions={{ persister }}
         >
-           {children}
+            {children}
         </PersistQueryClientProvider>
     )
 }

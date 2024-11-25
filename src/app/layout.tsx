@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
     description: 'GUB Portal',
 }
 
-
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -28,7 +26,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <QueryClientProvider >
+                <QueryClientProvider>
                     <main>{children}</main>
                 </QueryClientProvider>
             </body>

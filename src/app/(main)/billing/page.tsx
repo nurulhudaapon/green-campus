@@ -41,19 +41,19 @@ export default function BillingPage() {
         queryKey: ['billing'],
         queryFn: () => getBilling(),
         initialData: {
-          installments: [],
-          records: [],
-          summary: {
-              totalFee: 0,
-              totalBill: 0,
-              totalPaid: 0,
-              balance: 0,
-              totalDiscount: 0,
-          },
-      },
+            installments: [],
+            records: [],
+            summary: {
+                totalFee: 0,
+                totalBill: 0,
+                totalPaid: 0,
+                balance: 0,
+                totalDiscount: 0,
+            },
+        },
     })
 
-    const billingData = billingQuery.data as BillingHistory;
+    const billingData = billingQuery.data as BillingHistory
 
     if (billingQuery.isError) {
         return <div>{billingQuery.error.message}</div>
@@ -95,7 +95,7 @@ export default function BillingPage() {
         if (typeof amount === 'string') {
             amount = parseFloat(amount)
         }
-        return amount < 0 ? 'text-green-500' : 'text-red-500'
+        return amount < 0 ? 'text-green-500' : 'text-black-500'
     }
 
     return (
