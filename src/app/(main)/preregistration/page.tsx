@@ -204,11 +204,11 @@ export default function PreRegistrationPage() {
     return (
         <div className="container mx-auto max-w-7xl p-2">
             <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-xl font-bold">Pre-Registration</h1>
                 <h5 className="flex items-center gap-1 text-xs text-gray-500">
                     <Info className="h-3 w-3" />
-                    Dummy Data - Under Development
+                    When pre-registration is enabled you will see current courses, for the time being we are showing last semester's courses
                 </h5>
-                <h1 className="text-xl font-bold">Pre-Registration</h1>
             </div>
             <div className="w-full mb-2">
                 <Input

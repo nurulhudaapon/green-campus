@@ -41,7 +41,7 @@ export async function getCourses() {
     if (!courses?.length) {
         return DUMMY_COURSES.map((c) => ({
             ...c,
-            formalCode: c.formalCode + ' - Dummy',
+            formalCode: c.formalCode + ' - Last Semester',
         }))
     }
     return courses
