@@ -140,7 +140,9 @@ export default function SectionsCell({
                         {batchId && (
                             <div className="flex items-center mb-1">
                                 <span className="text-xs font-medium bg-background border px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
-                                    <span className="text-muted-foreground">Batch</span>
+                                    <span className="text-muted-foreground">
+                                        Batch
+                                    </span>
                                     <span>{batchId}</span>
                                 </span>
                             </div>
@@ -148,20 +150,27 @@ export default function SectionsCell({
                         <div className="flex flex-wrap gap-1">
                             {sections
                                 .sort((a, b) =>
-                                    a.sectionName.localeCompare(b.sectionName, undefined, {numeric: true})
+                                    a.sectionName.localeCompare(
+                                        b.sectionName,
+                                        undefined,
+                                        { numeric: true }
+                                    )
                                 )
                                 .map((section) => {
                                     const isSelected =
                                         selectedSections[course.formalCode] ===
                                             section.sectionName ||
-                                        course.sectionName === section.sectionName
+                                        course.sectionName ===
+                                            section.sectionName
                                     const isHovered =
                                         hoveredSection === section.sectionName
                                     const isDropped =
-                                        section.sectionName.includes('(DROPPED)')
+                                        section.sectionName.includes(
+                                            '(DROPPED)'
+                                        )
                                     const isFull =
-                                        section.capacity - section.occupied === 0 &&
-                                        !isSelected
+                                        section.capacity - section.occupied ===
+                                            0 && !isSelected
 
                                     return (
                                         <Popover
@@ -290,7 +299,8 @@ export default function SectionsCell({
                                                             </span>{' '}
                                                             {section.capacity -
                                                                 section.occupied}{' '}
-                                                            of {section.capacity}
+                                                            of{' '}
+                                                            {section.capacity}
                                                         </div>
                                                     </div>
                                                 </div>
