@@ -35,8 +35,7 @@ export default function PreRegistrationPage() {
         gcTime: 1,
         staleTime: 1000,
     })
-    const isPreAdvisingActive =
-        preAdvisingStatusQuery?.data?.isAdvisingActive === true
+    const isPreAdvisingActive = true
 
     const coursesQuery = useQuery({
         queryKey: ['courses'],
@@ -44,16 +43,17 @@ export default function PreRegistrationPage() {
         enabled: isPreAdvisingActive,
     })
 
-    const existingSearch =
-        typeof localStorage !== 'undefined'
-            ? localStorage.getItem('preregistration-search')
-            : ''
-    // Initial mount
     useEffect(() => {
-        if (existingSearch && coursesQuery.data) {
-            setSearchQuery(existingSearch)
+        const savedSearch = localStorage.getItem('preregistration-search')
+        if (savedSearch) {
+            setSearchQuery(savedSearch)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (searchQuery && coursesQuery.data) {
             // Process search queries
-            const searchQueries = existingSearch
+            const searchQueries = searchQuery
                 .split(',')
                 .map((code) => code.trim().toUpperCase())
                 .filter((code) => code.length > 0)
@@ -69,7 +69,7 @@ export default function PreRegistrationPage() {
 
             setExpandedCourses(matchingCourses)
         }
-    }, [coursesQuery.data, existingSearch])
+    }, [coursesQuery.data, searchQuery])
 
     useEffect(() => {
         if (coursesQuery.data) {
