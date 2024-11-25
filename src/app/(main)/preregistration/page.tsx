@@ -254,9 +254,10 @@ export default function PreRegistrationPage() {
                     />
                     <h5 className="flex items-center gap-1 text-xs text-gray-500">
                         <Info className="h-3 w-3" />
-                        You can save your coruse search in advance now and it
+                        You can write your course search in  advance now and the search
                         will be automatically applied when pre-registration is
-                        enabled
+                        enabled so that you can see the courses you are
+                        interested in on the top and expanded.
                     </h5>
                 </div>
             </div>
