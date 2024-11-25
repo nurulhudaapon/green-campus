@@ -141,7 +141,7 @@ export default function SectionsCell({
                         )}
                         {sections
                             .sort((a, b) =>
-                                a.sectionName.localeCompare(b.sectionName)
+                                a.sectionName.localeCompare(b.sectionName, undefined, {numeric: true})
                             )
                             .map((section) => {
                                 const isSelected =
