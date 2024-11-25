@@ -39,12 +39,12 @@ export async function getCourses() {
     } catch (error) {
         console.error(error)
     }
-    if (!courses?.length) {
-        return DUMMY_COURSES.map((c) => ({
-            ...c,
-            formalCode: c.formalCode + ' - Last Semester',
-        }))
-    }
+    // if (!courses?.length) {
+    //     return DUMMY_COURSES.map((c) => ({
+    //         ...c,
+    //         formalCode: c.formalCode + ' - Last Semester',
+    //     }))
+    // }
     return courses
 }
 
@@ -128,7 +128,7 @@ export async function getSections(course: Course): Promise<Section[]> {
         }
     })
     if (!sections?.length) {
-        return dummySections as Section[]
+        // return dummySections as Section[]
     }
     return sections
 }

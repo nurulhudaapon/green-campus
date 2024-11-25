@@ -102,24 +102,6 @@ export default function PreRegistrationPage() {
         )
     }
 
-    if (!isPreAdvisingActive) {
-        return (
-            <div className="container mx-auto max-w-7xl p-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Pre-Registration Unavailable</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>
-                            Pre-advising is not currently active. Please check
-                            back later.
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
-        )
-    }
-
     if (coursesQuery.isLoading) {
         return (
             <div className="container mx-auto max-w-7xl p-4">
@@ -247,16 +229,44 @@ export default function PreRegistrationPage() {
         return false
     }
 
+    if (!isPreAdvisingActive) {
+        return (
+            <div className="container mx-auto max-w-7xl p-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pre-Registration Unavailable</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>
+                            Pre-advising is not currently active. Please check
+                            back later.
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <div className="w-full mb-2 mt-2">
+                    <Input
+                        placeholder="Search courses (e.g. CSE101, CSE102)"
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="text-sm"
+                    />
+                    <h5 className="flex items-center gap-1 text-xs text-gray-500">
+                        <Info className="h-3 w-3" />
+                        You can save your coruse search in advance now and it
+                        will be automatically applied when pre-registration is
+                        enabled
+                    </h5>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="container mx-auto max-w-7xl p-2">
             <div className="flex items-center gap-2 mb-2">
                 <h1 className="text-xl font-bold">Pre-Registration</h1>
-                <h5 className="flex items-center gap-1 text-xs text-gray-500">
-                    <Info className="h-3 w-3" />
-                    When pre-registration is enabled you will see current
-                    courses, for the time being we are showing last semester's
-                    courses
-                </h5>
             </div>
             <div className="w-full mb-2">
                 <Input
