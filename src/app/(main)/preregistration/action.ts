@@ -198,7 +198,6 @@ export async function registerSection(section: Section, course: Course) {
 
         const preSectionId = course.acaCal_SectionID?.toString()
         if (preSectionId) {
-            await deregisterSection(section, course)
             selectSectionParam.append('preSectionId', preSectionId)
         }
         // console.log({ course })
@@ -221,7 +220,12 @@ export async function registerSection(section: Section, course: Course) {
         revalidatePath('/preregistration')
         // await new Promise((resolve) => setTimeout(resolve, 1000))
         console.log({ selectSectionRes })
-        if (selectSectionRes.includes('1')) return true
+        if (selectSectionRes.includes('1')) {
+            if (preSectionId) {
+                await deregisterSection(section, course)
+            }
+            return true
+        }
     } catch (error) {
         console.error(error)
     }
