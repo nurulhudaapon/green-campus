@@ -1,10 +1,46 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+// import { Agent, setGlobalDispatcher, fetch } from 'undici'
+// import dns from 'dns/promises'
+// import { promisify } from 'util'
 
 const BASE_URL = 'https://studentportal.green.edu.bd'
 
-export async function getAuthToken(prev: unknown, formData: FormData) {
+// Create a custom agent that uses Google's DNS server
+// const agent = new Agent({
+//   connect: {
+//     lookup: async (hostname: string, options: any, callback: Function) => {
+//       try {
+//         // Configure DNS resolver to use Google's DNS
+//         const resolver = new dns.Resolver()
+//         resolver.setServers(['8.8.8.8'])
+//         const addresses = await resolver.resolve4(hostname)
+//         callback(null, addresses[0], 4)
+//       } catch (err) {
+//         callback(err)
+//       }
+//     }
+//   }
+// })
+
+// setGlobalDispatcher(agent)
+
+export async function getAuthToken(formData: FormData) {
+    const captchaResponse = formData.get('g-recaptcha-response')
+
+    if (!captchaResponse || typeof captchaResponse !== 'string') {
+        return { error: 'Captcha verification failed' }
+    }
+
+    // const isValidCaptcha = await verifyCaptcha(captchaResponse)
+    // if (!isValidCaptcha) {
+    //     return { error: 'Invalid captcha response' }
+    // }
+
+    console.log({ captchaResponse })
+
     try {
         const initialResponse = await getInitialTokens()
         if (!initialResponse) return { error: 'Could not connect to server' }
@@ -14,6 +50,7 @@ export async function getAuthToken(prev: unknown, formData: FormData) {
             verificationToken: initialResponse.verificationToken ?? '',
             studentId: formData.get('student_id')?.toString() ?? '',
             password: formData.get('password')?.toString() ?? '',
+            captchaResponse: captchaResponse,
         })
 
         console.log({ credentialCookies: credentialCookies.slice(0, 50) })
@@ -57,6 +94,7 @@ interface LoginParams {
     verificationToken: string
     studentId: string | null
     password: string | null
+    captchaResponse: string | null
 }
 
 async function login({
@@ -64,6 +102,7 @@ async function login({
     verificationToken,
     studentId,
     password,
+    captchaResponse,
 }: LoginParams) {
     // console.log({ studentId })
     const interestingCookies = cookies
@@ -77,9 +116,13 @@ async function login({
             'content-type': 'application/x-www-form-urlencoded',
             cookie: interestingCookies,
         },
-        body: `Input.LoginId=${studentId}&Input.Password=${password}&__RequestVerificationToken=${verificationToken}`,
+        body: `Input.LoginId=${studentId}&Input.Password=${password}&__RequestVerificationToken=${verificationToken}&g-recaptcha-response=${captchaResponse}`,
         method: 'POST',
     })
+
+    console.log({ response, cookies: response.headers.entries() })
+
+    console.log({ responseText: await response.clone().text() })
 
     const credentialCookies = response.headers
         .getSetCookie()
@@ -91,3 +134,25 @@ async function login({
         credentialCookies,
     }
 }
+
+// async function verifyCaptcha(captchaResponse: string) {
+//     const secretKey = process.env.RECAPTCHA_SECRET_KEY // Add this to your .env file
+
+//     const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded',
+//         },
+//         body: `secret=${secretKey}&response=${captchaResponse}`,
+//     })
+
+//     const data = await response.json()
+//     return data.success
+// }
+
+export async function loginUsingToken(token: string) {
+    const cookieStore = await cookies()
+    cookieStore.set('auth', `.AspNetCore.Cookies=${token}`)
+    redirect('/profile')
+}
+

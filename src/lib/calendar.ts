@@ -8,22 +8,45 @@ type ClassSchedule = {
 }
 
 function getDayNumber(day: string): number {
-    const days = {
-        Sunday: 0,
-        Monday: 1,
-        Tuesday: 2,
-        Wednesday: 3,
-        Thursday: 4,
-        Friday: 5,
-        Saturday: 6,
+    const dayMap = {
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
     }
-    return days[day as keyof typeof days] || 0
+    return dayMap[day as keyof typeof dayMap] || 0
 }
 
 function parseTime(timeSlot: string): { start: string; end: string } {
-    // Assuming time format is like "9:00 AM - 10:20 AM"
-    const [start, end] = timeSlot.split(' - ')
-    return { start, end }
+    const [startTime, endTime] = timeSlot.split(' - ')
+    
+    function convertTime(time: string): string {
+        // Remove any spaces and :
+        time = time.replace(/\s+/g, '').replace(':', '')
+        
+        let hours = parseInt(time.substring(0, 2))
+        const minutes = time.substring(2, 4)
+        const isPM = time.includes('PM')
+        
+        // Convert to 24-hour format
+        if (isPM && hours !== 12) {
+            hours += 12
+        }
+        if (!isPM && hours === 12) {
+            hours = 0
+        }
+        
+        // Pad with zeros
+        return `${hours.toString().padStart(2, '0')}${minutes}`
+    }
+    
+    return {
+        start: convertTime(startTime),
+        end: convertTime(endTime)
+    }
 }
 
 export function generateICSFile(classes: ClassSchedule[]): string {
@@ -45,12 +68,16 @@ export function generateICSFile(classes: ClassSchedule[]): string {
                 .split('T')[0]
                 .replace(/-/g, '')
 
+            // Clean up the description and location
+            const description = `Course: ${cls.formalCode}\\nSection: ${cls.section}`.replace(/[^\w\s\\:]/g, '')
+            const location = cls.room?.replace(/[^\w\s]/g, '') || 'TBA'
+
             return `BEGIN:VEVENT
 SUMMARY:${cls.courseTitle}
-DESCRIPTION:Course: ${cls.formalCode}\\nSection: ${cls.section}
-LOCATION:${cls.room}
-DTSTART;TZID=Asia/Dhaka:${dateStr}T${start.replace(/[^\d]/g, '')}00
-DTEND;TZID=Asia/Dhaka:${dateStr}T${end.replace(/[^\d]/g, '')}00
+DESCRIPTION:${description}
+LOCATION:${location}
+DTSTART;TZID=Asia/Dhaka:${dateStr}T${start}00
+DTEND;TZID=Asia/Dhaka:${dateStr}T${end}00
 RRULE:FREQ=WEEKLY
 END:VEVENT`
         })

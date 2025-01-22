@@ -4,7 +4,6 @@ import { cookies } from 'next/headers'
 import { getStudentInfo } from '../profile/action'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import exp from 'constants'
 
 const BASE_URL = 'https://studentportal.green.edu.bd'
 
@@ -29,6 +28,8 @@ export async function getCourses() {
         }
     )
 
+    console.log({ coursesResponse })
+
     if (coursesResponse.url.includes('/Account/login')) {
         // cookieStore.delete("auth"); /// TODO: Probably a next.js bug [ Server ] Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
         redirect('/login?message=Session expired')
@@ -38,12 +39,12 @@ export async function getCourses() {
     } catch (error) {
         console.error(error)
     }
-    // if (!courses?.length) {
-    //     return DUMMY_COURSES.map((c) => ({
-    //         ...c,
-    //         formalCode: c.formalCode + ' - Last Semester',
-    //     }))
-    // }
+    if (!courses?.length) {
+        return DUMMY_COURSES.map((c) => ({
+            ...c,
+            formalCode: c.formalCode + ' - Dummy',
+        }))
+    }
     return courses
 }
 

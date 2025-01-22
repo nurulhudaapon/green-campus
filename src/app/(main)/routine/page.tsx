@@ -89,6 +89,11 @@ const dayMap = {
     Sun: 'Sunday',
 }
 
+function getTimeRange(timeSlot: string) {
+    const [start, end] = timeSlot.split(' - ')
+    return { start, end }
+}
+
 export default function ClassRoutinePage() {
     const [classSchedules, setClassRoutine] = useState<ClassSchedule[]>([])
     const [viewMode, setViewMode] = useState<'list' | 'schedule' | 'calendar'>(
@@ -107,16 +112,25 @@ export default function ClassRoutinePage() {
     const allDays = classSchedules.map((cls) => normalizeDay(cls.day))
     const days = [...new Set(allDays)]
     const allTimeSlots = classSchedules.map((cls) => cls.time)
-    const timeSlots = [...new Set(allTimeSlots)]
+    const timeSlots = [...new Set(allTimeSlots.map(getTimeRange).map(range => range.start))].map(onlyStarting => {
+        const fullTimeSlot = allTimeSlots.find(time => getTimeRange(time).start === onlyStarting)
+        return fullTimeSlot
+    })
     console.log({ classSchedules })
     const getClassForTimeSlot = (day: string, timeSlot: string) => {
         const shortDay = Object.entries(dayMap).find(
             ([_, long]) => long === day
         )?.[0]
+
+        function compareOnlyStartTime(a: string, b: string) {
+            const { start: aStart } = getTimeRange(a)
+            const { start: bStart } = getTimeRange(b)
+            return aStart === bStart
+        }
         return classSchedules.find(
             (cls) =>
                 cls.day === shortDay &&
-                normalizeTime(cls.time) === normalizeTime(timeSlot)
+                compareOnlyStartTime(cls.time, timeSlot)
         )
     }
 
@@ -141,11 +155,11 @@ export default function ClassRoutinePage() {
         return classSchedules.filter((cls) => cls.day === shortDay)
     }
 
-    const sortedTimeSlots = sortTimeSlots(timeSlots)
+    const sortedTimeSlots = sortTimeSlots(timeSlots.filter(Boolean) as string[])
     const sortedDays = sortedDayOrder.filter((day) => days.includes(day))
 
     return (
-        <div className="container mx-auto max-w-7xl p-4">
+        <div className="container mx-auto  p-4">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-3xl font-bold text-center lg:text-left">
                     Class Routine
@@ -226,7 +240,7 @@ export default function ClassRoutinePage() {
                 </div>
             ) : viewMode === 'schedule' ? (
                 <div className="rounded-lg border bg-card">
-                    <div className="overflow-x-auto max-w-[80vw] md:max-w-[90vw] lg:md:max-w-[70vw]">
+                    <div className="overflow-x-auto w-full">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-muted/50">
@@ -268,19 +282,29 @@ export default function ClassRoutinePage() {
                                                                             cls.courseTitle
                                                                         }
                                                                     </div>
+                                                                    {cls.time !== timeSlot && (
+                                                                        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground text-center">
+                                                                                <Clock className="h-3 w-3" />
+                                                                                {cls.time}
+                                                                            </div>
+                                                                        )}
                                                                     <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-                                                                        <div className="flex items-center gap-1">
+                                                                        
+                                                                        {cls.room && <div className="flex items-center gap-1">
                                                                             <MapPin className="h-3 w-3" />
-                                                                            {
-                                                                                cls.room
-                                                                            }
-                                                                        </div>
-                                                                        <div className="flex items-center gap-1">
-                                                                            <Users className="h-3 w-3" />
+                                                                                {
+                                                                                    cls.room
+                                                                                }
+                                                                            </div>
+                                                                        }
+                                                                        {cls.section && (
+                                                                            <div className="flex items-center gap-1">
+                                                                                <Users className="h-3 w-3" />
                                                                             {
                                                                                 cls.section
                                                                             }
-                                                                        </div>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             </CardContent>

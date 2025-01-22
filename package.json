@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
+        "dev:ssl": "next dev --turbopack --experimental-https -H studentportal.green.edu.bd -p 443",
         "dev": "next dev --turbopack",
         "build": "next build",
         "format": "prettier --write .",
