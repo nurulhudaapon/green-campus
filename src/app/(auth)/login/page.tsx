@@ -1,26 +1,26 @@
 'use client'
 
-import { Suspense, useActionState, useEffect, useState, useRef } from 'react'
-import { useRouter, useSearchParams, redirect } from 'next/navigation'
-import Image from 'next/image'
+import { logout } from '@/app/action'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 import { AlertCircle, Loader2 } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { getAuthToken, loginUsingToken } from './action'
-import { logout } from '@/app/action'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useActionState, useEffect, useRef, useState } from 'react'
+import { getAuthToken, loginUsingToken } from './action'
 
 const ReCAPTCHA = dynamic(
+    // @ts-ignore
     () => {
         return new Promise((resolve) => {
             if (typeof window !== 'undefined') {
@@ -42,16 +42,25 @@ const ReCAPTCHA = dynamic(
     },
     {
         ssr: false,
-        loading: () => <div className="h-[78px]" /> // Placeholder with same height
+        loading: () => <div className="h-[78px]" />, // Placeholder with same height
     }
 )
 
-export default async function LoginPage() {
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="flex h-[78px] items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin" />
+        </div>}>
+            <LoginPageBase />
+        </Suspense>
+    )
+}
+
+function LoginPageBase() {
     const searchParams = useSearchParams()
 
-
-
     const [formActionState, formAction, isPending] = useActionState(
+        // @ts-ignore
         (state, formData: FormData) => getAuthToken(formData),
         null
     )
@@ -82,14 +91,14 @@ export default async function LoginPage() {
 
     const handleSubmit = async (formData: FormData) => {
         const captchaResponse = (window as any).grecaptcha?.getResponse()
-        
+
         if (!captchaResponse) {
             setCaptchaError('Please complete the captcha')
             return
         }
-        
+
         formData.append('g-recaptcha-response', captchaResponse)
-        
+
         formAction(formData)
     }
 
