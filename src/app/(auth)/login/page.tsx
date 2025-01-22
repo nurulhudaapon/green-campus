@@ -58,49 +58,21 @@ export default function LoginPage() {
 
 function LoginPageBase() {
     const searchParams = useSearchParams()
-
-    const [formActionState, formAction, isPending] = useActionState(
-        // @ts-ignore
-        (state, formData: FormData) => getAuthToken(formData),
-        null
-    )
-    const [studentId, setStudentId] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
+    const [token, setToken] = useState('')
     const router = useRouter()
-    const captchaRef = useRef<HTMLDivElement>(null)
-    const [captchaError, setCaptchaError] = useState('')
 
     useEffect(() => {
-        if (formActionState?.credentialCookies) {
-            router.push('/profile')
-        }
-
-        if (formActionState?.error) {
-            setError(formActionState.error)
-        }
-    }, [formActionState, router])
-
-    useEffect(() => {
-        const token = searchParams.get('token')
-        console.log({ token })
-        if (token) {
-            loginUsingToken(token)
+        const urlToken = searchParams.get('token')
+        if (urlToken) {
+            loginUsingToken(urlToken)
         }
     }, [searchParams])
 
-    const handleSubmit = async (formData: FormData) => {
-        const captchaResponse = (window as any).grecaptcha?.getResponse()
-
-        if (!captchaResponse) {
-            setCaptchaError('Please complete the captcha')
-            return
+    useEffect(() => {
+        if (token) {
+            loginUsingToken(token)
         }
-
-        formData.append('g-recaptcha-response', captchaResponse)
-
-        formAction(formData)
-    }
+    }, [token])
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
@@ -116,73 +88,29 @@ function LoginPageBase() {
                         />
                     </div>
                     <CardTitle className="text-xl sm:text-2xl font-bold text-center">
-                        Login to GUB Portal
+                        Login to Unofficial GUB Portal
                     </CardTitle>
-                    <CardDescription className="text-center text-sm sm:text-base">
-                        Redesigned UI/UX with existing server/database!
+                    <CardDescription className="text-center text-sm sm:text-base text-red-500">
+                        ⚠️ Warning: Only paste your token if you trust the author of this site. Never share it with others.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form action={handleSubmit}>
-                        <div className="space-y-3 sm:space-y-4">
-                            <div className="space-y-1 sm:space-y-2">
-                                <Label htmlFor="studentId">Student ID</Label>
-                                <Input
-                                    id="student_id"
-                                    name="student_id"
-                                    placeholder="Enter your Student ID"
-                                    value={studentId}
-                                    onChange={(e) =>
-                                        setStudentId(e.target.value)
-                                    }
-                                    required
-                                    disabled={isPending}
-                                    className="h-9 sm:h-10"
-                                />
-                            </div>
-                            <div className="space-y-1 sm:space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                    required
-                                    disabled={isPending}
-                                    className="h-9 sm:h-10"
-                                />
-                            </div>
+                    <div className="space-y-3 sm:space-y-4">
+                        <div className="space-y-1 sm:space-y-2">
+                            <Label htmlFor="token">Login Token</Label>
+                            <Input
+                                id="token"
+                                name="token"
+                                placeholder="Paste your login token here"
+                                value={token}
+                                onChange={(e) => setToken(e.target.value)}
+                                className="h-9 sm:h-10"
+                            />
                         </div>
-                        <div className="mt-3 sm:mt-4 flex justify-center">
-                            <ReCAPTCHA />
-                        </div>
-                        {captchaError && (
-                            <p className="text-sm text-red-500 text-center mt-2">
-                                {captchaError}
-                            </p>
-                        )}
-                        <Suspense>
-                            <ErrorMessage message={error} />
-                        </Suspense>
-                        <Button
-                            type="submit"
-                            disabled={isPending}
-                            className="mt-3 sm:mt-4 w-full h-9 sm:h-10"
-                        >
-                            {isPending ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Please wait
-                                </>
-                            ) : (
-                                'Login'
-                            )}
-                        </Button>
-                    </form>
+                    </div>
+                    <Suspense>
+                        <ErrorMessage message="" />
+                    </Suspense>
                 </CardContent>
             </Card>
         </div>
