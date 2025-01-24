@@ -25,6 +25,10 @@ interface Course {
     point: number
     courseStatus: string
 }
+export interface CurrentCourseData {
+    courseCode: string
+    credit: number
+}
 
 export interface ResultData {
     semesters: Semester[]
@@ -53,6 +57,45 @@ export async function getResult() {
     return data
 }
 
+export async function getCurrentCourses() {
+    const cookieStore = await cookies()
+    const authToken = cookieStore.get('auth')
+
+    if (!authToken) {
+        return { error: 'Unauthorized' }
+    }
+
+    const response = await fetch(`${BASE_URL}/Student/StudentBillHistory`, {
+        headers: {
+            accept: 'text/html; charset=utf-8',
+            Cookie: authToken.value,
+        },
+    })
+
+    const htmlResponse = await response.text()
+    const data = parseCurrentCourses(htmlResponse)
+    console.log({ CurrentCourses: data })
+    return data
+}
+function parseCurrentCourses(html: string): CurrentCourseData[] {
+    const $ = cheerio.load(html)
+    const courses: CurrentCourseData[] = []
+    $('#tblBillHistory tr:gt(0)').each((i, elem) => {
+        const tds = $(elem).find('td')
+        if (tds.length === 10) {
+            const trimester = $(tds[7]).text().trim()
+            if (trimester !== 'Spring 2025') {
+                return
+            }
+            courses.push({
+                courseCode: $(tds[2]).text().trim(),
+                credit: parseFloat($(tds[3]).text().trim() || '0'),
+            })
+        }
+    })
+
+    return courses
+}
 function parseHtmlToJson(html: string): ResultData {
     const $ = cheerio.load(html)
     const semesters: Semester[] = []
