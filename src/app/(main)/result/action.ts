@@ -28,6 +28,17 @@ interface Course {
 export interface CurrentCourseData {
     courseCode: string
     credit: number
+    point?: number
+    grade?: string
+    courseTitle?: string
+}
+export interface ClassSchedule {
+    formalCode: string
+    courseTitle: string
+    section: string
+    room: string
+    day: string
+    time: string
 }
 
 export interface ResultData {
@@ -54,6 +65,26 @@ export async function getResult() {
 
     const htmlResponse = await response.text()
     const data = parseHtmlToJson(htmlResponse)
+    return data
+}
+export async function getClassRoutine() {
+    const cookieStore = await cookies()
+    const authToken = cookieStore.get('auth')
+
+    if (!authToken) {
+        return { error: 'Unauthorized' }
+    }
+
+    console.log({ authToken: authToken.value.slice(0, 50) })
+
+    const response = await fetch(`${BASE_URL}/api/ClassRoutine`, {
+        headers: {
+            accept: 'application/json, text/plain, */*',
+            Cookie: authToken.value,
+        },
+    })
+
+    const data = await response.json()
     return data
 }
 
@@ -84,12 +115,16 @@ function parseCurrentCourses(html: string): CurrentCourseData[] {
         const tds = $(elem).find('td')
         if (tds.length === 10) {
             const trimester = $(tds[7]).text().trim()
+            const credit = parseFloat($(tds[3]).text().trim() || '0')
             if (trimester !== 'Spring 2025') {
+                return
+            }
+            if (credit === 0) {
                 return
             }
             courses.push({
                 courseCode: $(tds[2]).text().trim(),
-                credit: parseFloat($(tds[3]).text().trim() || '0'),
+                credit: credit,
             })
         }
     })

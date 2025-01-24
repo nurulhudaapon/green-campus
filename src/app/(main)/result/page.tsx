@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
@@ -14,12 +14,21 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
+    getClassRoutine,
     getCurrentCourses,
-    CurrentCourseData,
     getResult,
     ResultData,
+    CurrentCourseData,
+    ClassSchedule,
 } from './action'
 import { BookOpen, GraduationCap, Award, LineChart } from 'lucide-react'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 
 export default function ResultHistoryPage() {
     const [currentCourses, setCurrentCourses] = useState<CurrentCourseData[]>(
@@ -39,13 +48,38 @@ export default function ResultHistoryPage() {
                 setResults(result)
             }
         })
-        getCurrentCourses().then((courses) => {
-            if (courses && 'error' in courses) {
-                console.error(courses.error)
-            } else {
-                setCurrentCourses(courses)
-            }
-        })
+        getCurrentCourses()
+            .then((courses) => {
+                if (courses && 'error' in courses) {
+                    console.error(courses.error)
+                    return
+                }
+
+                return getClassRoutine().then((routineData) => {
+                    const routineLookup = routineData.reduce(
+                        (lookup: any, routine: ClassSchedule) => {
+                            lookup[routine.formalCode] = routine
+                            return lookup
+                        },
+                        {}
+                    )
+                    const newCurrentCourses = courses.map((course) => {
+                        const matchingRoutine = routineLookup[course.courseCode]
+                        if (matchingRoutine) {
+                            return {
+                                ...course,
+                                courseTitle: matchingRoutine.courseTitle,
+                            }
+                        }
+                        return course
+                    })
+
+                    setCurrentCourses(newCurrentCourses)
+                })
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error)
+            })
     }, [])
 
     const filteredCourses =
@@ -79,14 +113,23 @@ export default function ResultHistoryPage() {
             totalCourses
         const currentCGPA =
             results.semesters[results.semesters.length - 1]?.cgpaTranscript || 0
-        const NewSemeterTotalCredits = currentCourses.reduce(
+        const newSemeterTotalCredits = currentCourses.reduce(
             (sum, course) => sum + course.credit,
             0
         )
-        const newTotalCredits = totalCredits + NewSemeterTotalCredits
+        const newTotalCredits = totalCredits + newSemeterTotalCredits
 
         const newCGPA =
-            (currentCGPA * totalCredits + NewSemeterTotalCredits * 4) /
+            (currentCGPA * totalCredits + newSemeterTotalCredits * 4) /
+            newTotalCredits
+        const predictedGPA =
+            currentCourses.reduce(
+                (sum, course) => sum + course.credit * (course.point || 4),
+                0
+            ) / newSemeterTotalCredits
+        const predictedCGPA =
+            (currentCGPA * totalCredits +
+                predictedGPA * newSemeterTotalCredits) /
             newTotalCredits
 
         return {
@@ -96,6 +139,8 @@ export default function ResultHistoryPage() {
             avgGPA,
             currentCGPA,
             newCGPA,
+            predictedGPA,
+            predictedCGPA,
         }
     }
 
@@ -193,9 +238,25 @@ export default function ResultHistoryPage() {
             </div>
 
             <Tabs defaultValue="gpa" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="gpa">GPA Summary</TabsTrigger>
-                    <TabsTrigger value="courses">Course Results</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 rounded-lg p-1 bg-muted/20">
+                    <TabsTrigger
+                        value="gpa"
+                        className="data-[state=active]:bg-background rounded-md transition-all"
+                    >
+                        GPA Summary
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="courses"
+                        className="data-[state=active]:bg-background rounded-md transition-all"
+                    >
+                        Course Results
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="predictCGPA"
+                        className="relative data-[state=active]:bg-background rounded-md transition-all"
+                    >
+                        Predict CGPA
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent value="gpa">
                     <Card>
@@ -340,6 +401,136 @@ export default function ResultHistoryPage() {
                                         )}
                                     </TableBody>
                                 </Table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="predictCGPA">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Predict CGPA</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-6">
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    <div className="p-4 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">
+                                            Current CGPA
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            {stats.currentCGPA.toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">
+                                            Predited GPA
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            {stats.predictedGPA?.toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">
+                                            Predicted CGPA
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            {stats.predictedCGPA?.toFixed(2)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2 mt-6">
+                                <div className="text-lg font-semibold">
+                                    Running Semester Courses
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>
+                                                    Course Code
+                                                </TableHead>
+                                                <TableHead>
+                                                    Course Title
+                                                </TableHead>
+                                                <TableHead>Credit</TableHead>
+                                                <TableHead>Grade</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {currentCourses.map(
+                                                (course, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            {course.courseCode}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {course.courseTitle}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {course.credit}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Select
+                                                                defaultValue="4.00"
+                                                                onValueChange={(
+                                                                    value
+                                                                ) => {
+                                                                    const newCourses =
+                                                                        [
+                                                                            ...currentCourses,
+                                                                        ]
+                                                                    newCourses[
+                                                                        index
+                                                                    ] = {
+                                                                        ...course,
+                                                                        grade: value,
+                                                                        point: parseFloat(
+                                                                            value
+                                                                        ),
+                                                                    }
+                                                                    setCurrentCourses(
+                                                                        newCourses
+                                                                    )
+                                                                }}
+                                                            >
+                                                                <SelectTrigger className="w-24">
+                                                                    <SelectValue placeholder="Grade" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="4.00">
+                                                                        A+
+                                                                    </SelectItem>
+                                                                    <SelectItem value="3.75">
+                                                                        A
+                                                                    </SelectItem>
+                                                                    <SelectItem value="3.50">
+                                                                        A-
+                                                                    </SelectItem>
+                                                                    <SelectItem value="3.25">
+                                                                        B+
+                                                                    </SelectItem>
+                                                                    <SelectItem value="3.00">
+                                                                        B
+                                                                    </SelectItem>
+                                                                    <SelectItem value="2.75">
+                                                                        C+
+                                                                    </SelectItem>
+                                                                    <SelectItem value="2.50">
+                                                                        C
+                                                                    </SelectItem>
+                                                                    <SelectItem value="2.00">
+                                                                        D
+                                                                    </SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
